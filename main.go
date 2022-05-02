@@ -22,7 +22,7 @@ func main() {
 	// Set up a http server.
 	r := gin.Default()
 
-	r.GET("/rest/n/:name", CreateAccount(AccountClient))
+	r.POST("/rest/n/:name", CreateAccount(AccountClient))
 
 	// Run http server
 	if err := r.Run(":8052"); err != nil {
