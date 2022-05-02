@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func account(account pb.AccountsServiceClient) gin.HandlerFunc {
+func CreateAccount(account pb.AccountsServiceClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		name := c.Param("name")
 		id := "none"
