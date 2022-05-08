@@ -1,7 +1,31 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	pb "api-gateway/grpc/accountspb"
+
+	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+)
 
 func main() {
-	fmt.Println("Hello world!")
+	// Set up a connection to the server.
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	AccountClient := pb.NewAccountsServiceClient(conn)
+
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	// Set up a http server.
+	r := gin.Default()
+
+	r.POST("/rest/n/:name", CreateAccount(AccountClient))
+
+	// Run http server
+	if err := r.Run(":8052"); err != nil {
+		log.Fatalf("could not run server: %v", err)
+	}
 }
