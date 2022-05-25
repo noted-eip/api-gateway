@@ -28,6 +28,7 @@ func main() {
 	s.Engine.Use(gin.Recovery())
 	s.Engine.Use(s.LoggerMiddleware)
 
+	s.Engine.POST("/authenticate", s.accountsHandler.Authenticate)
 	s.Engine.GET("/accounts", s.accountsHandler.List)
 	s.Engine.GET("/accounts/:id", s.accountsHandler.Get)
 	s.Engine.POST("/accounts", s.accountsHandler.Create)
