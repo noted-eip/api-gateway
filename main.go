@@ -1,31 +1,39 @@
 package main
 
 import (
-	"log"
-
-	pb "api-gateway/grpc/accountspb"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	app                    = kingpin.New("apigw", "restful json http api for the noted backend").DefaultEnvars()
+	port                   = app.Flag("port", "http api port").Default("3000").Int16()
+	environment            = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
+	accountsServiceAddress = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
+)
+
+const (
+	envIsProd = "production"
+	envIsDev  = "development"
 )
 
 func main() {
-	// Set up a connection to the server.
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
-	AccountClient := pb.NewAccountsServiceClient(conn)
+	app.Parse(os.Args[1:])
 
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
+	s := server{}
+	s.Init()
 
-	// Set up a http server.
-	r := gin.Default()
+	s.Engine.Use(gin.Recovery())
+	s.Engine.Use(s.LoggerMiddleware)
 
-	r.POST("/rest/n/:name", CreateAccount(AccountClient))
+	s.Engine.GET("/accounts", s.accountsHandler.List)
+	s.Engine.GET("/accounts/:id", s.accountsHandler.Get)
+	s.Engine.POST("/accounts", s.accountsHandler.Create)
+	s.Engine.PATCH("/accounts/:id", s.accountsHandler.Update)
+	s.Engine.DELETE("/accounts/:id", s.accountsHandler.Delete)
 
-	// Run http server
-	if err := r.Run(":8052"); err != nil {
-		log.Fatalf("could not run server: %v", err)
-	}
+	s.Run()
+	defer s.Close()
 }
