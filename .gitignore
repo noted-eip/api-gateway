@@ -1,3 +1,10 @@
+# GRPC
 grpc/*
 !grpc/protos
+
+# Binary
 api-gateway.exe
+api-gateway
+
+# IDE
+.vscode/
