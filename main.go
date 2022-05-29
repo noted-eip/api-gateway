@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	app                    = kingpin.New("apigw", "restful json http api for the noted backend").DefaultEnvars()
+	app                    = kingpin.New("api-gateway", "restful json http api for the noted backend").DefaultEnvars()
 	port                   = app.Flag("port", "http api port").Default("3000").Int16()
 	environment            = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
 	accountsServiceAddress = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
@@ -20,7 +20,7 @@ const (
 )
 
 func main() {
-	app.Parse(os.Args[1:])
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	s := server{}
 	s.Init()

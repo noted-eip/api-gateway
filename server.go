@@ -36,7 +36,7 @@ func (s *server) Init() {
 }
 
 func (s *server) Run() {
-	s.slogger.Infof("running server on localhost:%d", *port)
+	s.slogger.Infof("service running on :%d", *port)
 	err := s.Engine.Run(fmt.Sprint(":", *port))
 	if err != nil {
 		panic(err)
@@ -48,22 +48,23 @@ func (s *server) LoggerMiddleware(c *gin.Context) {
 	c.Next()
 	if c.Writer.Status() > 499 {
 		s.logger.Error("failed http request",
+			zap.Int("code", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
 			zap.String("endpoint", c.Request.URL.Path),
-			zap.Int("code", c.Writer.Status()),
 			zap.Duration("duration", time.Since(start)),
 		)
 		return
 	}
 	s.logger.Info("http request",
+		zap.Int("code", c.Writer.Status()),
 		zap.String("method", c.Request.Method),
 		zap.String("endpoint", c.Request.URL.Path),
-		zap.Int("code", c.Writer.Status()),
 		zap.Duration("duration", time.Since(start)),
 	)
 }
 
 func (s *server) Close() {
+	s.logger.Info("graceful shutdown")
 	s.accountsConn.Close()
 	s.logger.Sync()
 }
@@ -79,12 +80,12 @@ func (s *server) initClientConn(address string) *grpc.ClientConn {
 func (s *server) initLogger() {
 	var err error
 	if *environment == envIsDev {
-		s.logger, err = zap.NewDevelopment(zap.WithCaller(true))
+		s.logger, err = zap.NewDevelopment(zap.WithCaller(false))
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		s.logger, err = zap.NewProduction(zap.WithCaller(true))
+		s.logger, err = zap.NewProduction(zap.WithCaller(false))
 		if err != nil {
 			panic(err)
 		}
