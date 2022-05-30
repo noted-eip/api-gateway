@@ -54,6 +54,14 @@ func (s *server) LoggerMiddleware(c *gin.Context) {
 			zap.Duration("duration", time.Since(start)),
 		)
 		return
+	} else if c.Writer.Status() > 399 {
+		s.logger.Warn("invalid http request",
+			zap.Int("code", c.Writer.Status()),
+			zap.String("method", c.Request.Method),
+			zap.String("endpoint", c.Request.URL.Path),
+			zap.Duration("duration", time.Since(start)),
+		)
+		return
 	}
 	s.logger.Info("http request",
 		zap.Int("code", c.Writer.Status()),
