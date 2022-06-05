@@ -35,6 +35,9 @@ func main() {
 	s.Engine.PATCH("/accounts/:id", s.accountsHandler.Update)
 	s.Engine.DELETE("/accounts/:id", s.accountsHandler.Delete)
 
+	s.Engine.POST("/groups", s.groupsHandler.Create)
+	s.Engine.DELETE("/groups/:id", s.groupsHandler.Delete)
+
 	s.Run()
 	defer s.Close()
 }
