@@ -3,6 +3,7 @@ package main
 import (
 	"api-gateway/grpc/accountspb"
 	"api-gateway/grpc/groupspb"
+	"api-gateway/grpc/recommendationspb"
 
 	"fmt"
 	"time"
@@ -22,6 +23,10 @@ type server struct {
 	groupsClient  groupspb.GroupServiceClient
 	groupsHandler *groupsHandler
 
+	recommendationsConn    *grpc.ClientConn
+	recommendationsClient  recommendationspb.RecommendationsServiceClient
+	recommendationsHandler *recommendationsHandler
+
 	logger  *zap.Logger
 	slogger *zap.SugaredLogger
 
@@ -38,6 +43,12 @@ func (s *server) Init() {
 	s.groupsClient = groupspb.NewGroupServiceClient(s.accountsConn)
 	s.groupsHandler = &groupsHandler{
 		groupsClient: s.groupsClient,
+	}
+
+	s.recommendationsConn = s.initClientConn(*recommendationsServiceAddress)
+	s.recommendationsClient = recommendationspb.NewRecommendationsServiceClient(s.accountsConn)
+	s.recommendationsHandler = &recommendationsHandler{
+		recommendationsClient: s.recommendationsClient,
 	}
 
 	s.initLogger()
