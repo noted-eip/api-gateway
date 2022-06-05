@@ -2,6 +2,8 @@ package main
 
 import (
 	"api-gateway/grpc/accountspb"
+	"api-gateway/grpc/groupspb"
+
 	"fmt"
 	"time"
 
@@ -12,9 +14,13 @@ import (
 )
 
 type server struct {
-	accountsConn    *grpc.ClientConn
+	accountsConn *grpc.ClientConn
+
 	accountsClient  accountspb.AccountsServiceClient
 	accountsHandler *accountsHandler
+
+	groupsClient  groupspb.GroupServiceClient
+	groupsHandler *groupsHandler
 
 	logger  *zap.Logger
 	slogger *zap.SugaredLogger
@@ -27,6 +33,11 @@ func (s *server) Init() {
 	s.accountsClient = accountspb.NewAccountsServiceClient(s.accountsConn)
 	s.accountsHandler = &accountsHandler{
 		accountsClient: s.accountsClient,
+	}
+
+	s.groupsClient = groupspb.NewGroupServiceClient(s.accountsConn)
+	s.groupsHandler = &groupsHandler{
+		groupsClient: s.groupsClient,
 	}
 
 	s.initLogger()
