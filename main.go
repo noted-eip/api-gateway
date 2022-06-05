@@ -12,7 +12,7 @@ var (
 	port                          = app.Flag("port", "http api port").Default("3000").Int16()
 	environment                   = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
 	accountsServiceAddress        = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
-	recommendationsServiceAddress = app.Flag("reco-service-addr", "the grpc address of the recommendations service").Default("recommendations:3000").String()
+	recommendationsServiceAddress = app.Flag("recommendations-service-addr", "the grpc address of the recommendations service").Default("recommendations:3000").String()
 )
 
 const (
