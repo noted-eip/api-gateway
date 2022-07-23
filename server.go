@@ -1,9 +1,9 @@
 package main
 
 import (
-	"api-gateway/grpc/accountspb"
-	"api-gateway/grpc/groupspb"
-	"api-gateway/grpc/recommendationspb"
+	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
+	recommendationsv1 "api-gateway/protorepo/noted/recommendations/v1"
+	"net/http"
 
 	"fmt"
 	"time"
@@ -17,14 +17,14 @@ import (
 type server struct {
 	accountsConn *grpc.ClientConn
 
-	accountsClient  accountspb.AccountsServiceClient
+	accountsClient  accountsv1.AccountsAPIClient
 	accountsHandler *accountsHandler
 
-	groupsClient  groupspb.GroupServiceClient
+	groupsClient  accountsv1.GroupsAPIClient
 	groupsHandler *groupsHandler
 
 	recommendationsConn    *grpc.ClientConn
-	recommendationsClient  recommendationspb.RecommendationsServiceClient
+	recommendationsClient  recommendationsv1.RecommendationsAPIClient
 	recommendationsHandler *recommendationsHandler
 
 	logger  *zap.Logger
@@ -35,18 +35,18 @@ type server struct {
 
 func (s *server) Init() {
 	s.accountsConn = s.initClientConn(*accountsServiceAddress)
-	s.accountsClient = accountspb.NewAccountsServiceClient(s.accountsConn)
+	s.accountsClient = accountsv1.NewAccountsAPIClient(s.accountsConn)
 	s.accountsHandler = &accountsHandler{
 		accountsClient: s.accountsClient,
 	}
 
-	s.groupsClient = groupspb.NewGroupServiceClient(s.accountsConn)
+	s.groupsClient = accountsv1.NewGroupsAPIClient(s.accountsConn)
 	s.groupsHandler = &groupsHandler{
 		groupsClient: s.groupsClient,
 	}
 
 	s.recommendationsConn = s.initClientConn(*recommendationsServiceAddress)
-	s.recommendationsClient = recommendationspb.NewRecommendationsServiceClient(s.accountsConn)
+	s.recommendationsClient = recommendationsv1.NewRecommendationsAPIClient(s.accountsConn)
 	s.recommendationsHandler = &recommendationsHandler{
 		recommendationsClient: s.recommendationsClient,
 	}
@@ -58,7 +58,7 @@ func (s *server) Init() {
 }
 
 func (s *server) Run() {
-	s.slogger.Infof("service running on :%d", *port)
+	s.slogger.Infof("api-gateway running on :%d", *port)
 	err := s.Engine.Run(fmt.Sprint(":", *port))
 	if err != nil {
 		panic(err)
@@ -91,6 +91,19 @@ func (s *server) LoggerMiddleware(c *gin.Context) {
 		zap.String("endpoint", c.Request.URL.Path),
 		zap.Duration("duration", time.Since(start)),
 	)
+}
+
+func (s *server) CorsMiddleware(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Next()
+}
+
+// TODO: Only invoke this middleware in registered routes.
+func (s *server) PreflightMiddleware(c *gin.Context) {
+	if c.Request.Method == http.MethodOptions {
+		c.Status(http.StatusOK)
+	}
+	c.Next()
 }
 
 func (s *server) Close() {

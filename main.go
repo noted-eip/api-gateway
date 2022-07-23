@@ -28,6 +28,8 @@ func main() {
 
 	s.Engine.Use(gin.Recovery())
 	s.Engine.Use(s.LoggerMiddleware)
+	s.Engine.Use(s.CorsMiddleware)
+	s.Engine.Use(s.PreflightMiddleware)
 
 	s.Engine.POST("/authenticate", s.accountsHandler.Authenticate)
 	s.Engine.GET("/accounts", s.accountsHandler.List)
