@@ -1,7 +1,7 @@
 package main
 
 import (
-	"api-gateway/grpc/groupspb"
+	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	"context"
 	"net/http"
 
@@ -9,11 +9,11 @@ import (
 )
 
 type groupsHandler struct {
-	groupsClient groupspb.GroupServiceClient
+	groupsClient accountsv1.GroupsAPIClient
 }
 
 func (h *groupsHandler) Create(c *gin.Context) {
-	body := &groupspb.CreateGroupRequest{}
+	body := &accountsv1.CreateGroupRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		c.JSON(http.StatusOK, httpError{Error: err.Error()})
 		return
@@ -29,7 +29,7 @@ func (h *groupsHandler) Create(c *gin.Context) {
 }
 
 func (h *groupsHandler) Delete(c *gin.Context) {
-	body := &groupspb.GroupFilterRequest{
+	body := &accountsv1.DeleteGroupRequest{
 		Id: c.Param("id"),
 	}
 

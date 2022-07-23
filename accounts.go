@@ -1,7 +1,7 @@
 package main
 
 import (
-	"api-gateway/grpc/accountspb"
+	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	"context"
 	"errors"
 	"net/http"
@@ -14,11 +14,11 @@ var (
 )
 
 type accountsHandler struct {
-	accountsClient accountspb.AccountsServiceClient
+	accountsClient accountsv1.AccountsAPIClient
 }
 
 func (h *accountsHandler) Authenticate(c *gin.Context) {
-	body := &accountspb.AuthenticateRequest{}
+	body := &accountsv1.AuthenticateRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		c.JSON(http.StatusOK, httpError{Error: err.Error()})
 		return
@@ -34,7 +34,7 @@ func (h *accountsHandler) Authenticate(c *gin.Context) {
 }
 
 func (h *accountsHandler) Create(c *gin.Context) {
-	body := &accountspb.CreateAccountRequest{}
+	body := &accountsv1.CreateAccountRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		c.JSON(http.StatusOK, httpError{Error: err.Error()})
 		return
@@ -56,7 +56,7 @@ func (h *accountsHandler) Get(c *gin.Context) {
 		return
 	}
 
-	body := &accountspb.GetAccountRequest{
+	body := &accountsv1.GetAccountRequest{
 		Id: c.Param("id"),
 	}
 
@@ -80,7 +80,7 @@ func (h *accountsHandler) Update(c *gin.Context) {
 		return
 	}
 
-	body := &accountspb.UpdateAccountRequest{}
+	body := &accountsv1.UpdateAccountRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		c.JSON(http.StatusOK, httpError{Error: err.Error()})
 		return
@@ -103,7 +103,7 @@ func (h *accountsHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	body := &accountspb.DeleteAccountRequest{
+	body := &accountsv1.DeleteAccountRequest{
 		Id: c.Param("id"),
 	}
 
