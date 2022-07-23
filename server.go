@@ -3,6 +3,7 @@ package main
 import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	recommendationsv1 "api-gateway/protorepo/noted/recommendations/v1"
+	"net/http"
 
 	"fmt"
 	"time"
@@ -90,6 +91,19 @@ func (s *server) LoggerMiddleware(c *gin.Context) {
 		zap.String("endpoint", c.Request.URL.Path),
 		zap.Duration("duration", time.Since(start)),
 	)
+}
+
+func (s *server) CorsMiddleware(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Next()
+}
+
+// TODO: Only invoke this middleware in registered routes.
+func (s *server) PreflightMiddleware(c *gin.Context) {
+	if c.Request.Method == http.MethodOptions {
+		c.Status(http.StatusOK)
+	}
+	c.Next()
 }
 
 func (s *server) Close() {
