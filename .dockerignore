@@ -1,9 +1,8 @@
-# Protobuf
-grpc/*
-!grpc/protos
-
 # IDE
 .vscode
 
-# Github
+# Git
 .github
+
+# Docs
+/docs/

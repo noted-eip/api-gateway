@@ -1,7 +1,7 @@
 package main
 
 import (
-	"api-gateway/grpc/recommendationspb"
+	recommendationsv1 "api-gateway/protorepo/noted/recommendations/v1"
 	"context"
 	"net/http"
 
@@ -9,11 +9,11 @@ import (
 )
 
 type recommendationsHandler struct {
-	recommendationsClient recommendationspb.RecommendationsServiceClient
+	recommendationsClient recommendationsv1.RecommendationsAPIClient
 }
 
 func (h *recommendationsHandler) Get(c *gin.Context) {
-	body := &recommendationspb.ExtractKeywordsRequest{}
+	body := &recommendationsv1.ExtractKeywordsRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		c.JSON(http.StatusOK, httpError{Error: err.Error()})
 		return
