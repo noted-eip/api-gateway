@@ -93,8 +93,10 @@ func (s *server) LoggerMiddleware(c *gin.Context) {
 	)
 }
 
-func (s *server) CorsMiddleware(c *gin.Context) {
+func (s *server) AccessControlMiddleware(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
 	c.Next()
 }
 
