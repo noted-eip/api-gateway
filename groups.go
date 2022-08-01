@@ -15,13 +15,13 @@ type groupsHandler struct {
 func (h *groupsHandler) Create(c *gin.Context) {
 	body := &accountsv1.CreateGroupRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
 	res, err := h.groupsClient.CreateGroup(context.Background(), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -35,7 +35,7 @@ func (h *groupsHandler) Delete(c *gin.Context) {
 
 	res, err := h.groupsClient.DeleteGroup(context.Background(), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
