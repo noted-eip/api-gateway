@@ -1,7 +1,4 @@
-# After cloning the repo, run init.
-init:
-	git submodule init
-
-# Fetch the latest version of the protos submodule.
+# Run this command upon cloning the repository or when wanting to
+# fetch the latest version of the protorepo.
 update-submodules:
-	git submodule update --remote
+	git submodule update --remote --init
