@@ -20,13 +20,13 @@ type accountsHandler struct {
 func (h *accountsHandler) Authenticate(c *gin.Context) {
 	body := &accountsv1.AuthenticateRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
 	res, err := h.accountsClient.Authenticate(context.Background(), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -36,13 +36,13 @@ func (h *accountsHandler) Authenticate(c *gin.Context) {
 func (h *accountsHandler) Create(c *gin.Context) {
 	body := &accountsv1.CreateAccountRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
 	res, err := h.accountsClient.CreateAccount(context.Background(), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h *accountsHandler) Create(c *gin.Context) {
 func (h *accountsHandler) Get(c *gin.Context) {
 	bearer, err := h.authenticate(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, httpError{Error: err.Error()})
+		writeError(c, http.StatusUnauthorized, err)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *accountsHandler) Get(c *gin.Context) {
 
 	res, err := h.accountsClient.GetAccount(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -76,7 +76,7 @@ func (h *accountsHandler) List(c *gin.Context) {
 func (h *accountsHandler) Update(c *gin.Context) {
 	bearer, err := h.authenticate(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, httpError{Error: err.Error()})
+		writeError(c, http.StatusUnauthorized, err)
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *accountsHandler) Update(c *gin.Context) {
 
 	res, err := h.accountsClient.UpdateAccount(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (h *accountsHandler) Update(c *gin.Context) {
 func (h *accountsHandler) Delete(c *gin.Context) {
 	bearer, err := h.authenticate(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, httpError{Error: err.Error()})
+		writeError(c, http.StatusUnauthorized, err)
 		return
 	}
 
@@ -109,7 +109,7 @@ func (h *accountsHandler) Delete(c *gin.Context) {
 
 	res, err := h.accountsClient.DeleteAccount(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
