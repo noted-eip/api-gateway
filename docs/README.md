@@ -32,7 +32,7 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 ```json
 {
     "account": {
-        "id": "uuid string",
+        "id": "string",
         "name": "string",
         "email": "string"
     }
@@ -57,7 +57,7 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 ```json
 {
     "account": {
-        "id": "uuid string",
+        "id": "string",
         "name": "string",
         "email": "string"
     }
@@ -68,6 +68,8 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 - Not found
 
 ### Update account
+
+**Description:** Update some fields of an account. The body expects an `update_mask` field which consist of a list of strings of all the fields that must be updated. For example, if wanting to update only the `"email"` and `"name"` the `"update_mask"` must be set to `["name", "email"]`.
 
 **Endpoint:** `PATCH /accounts/:id`
 
@@ -84,7 +86,6 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
         "email": "string",
         "password": "string"
     },
-    // The fields to update.
     "update_mask": ["name", "email", "password"]
 }
 ```
@@ -93,7 +94,7 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 ```json
 {
     "account": {
-        "id": "uuid string",
+        "id": "string",
         "name": "string",
         "email": "string"
     }
