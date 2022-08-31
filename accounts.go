@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -70,7 +71,37 @@ func (h *accountsHandler) Get(c *gin.Context) {
 }
 
 func (h *accountsHandler) List(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "unimplemented"})
+	bearer, err := h.authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
+	offset, err := strconv.ParseInt(c.Query("offset"), 10, 64)
+	if err != nil {
+		writeError(c, http.StatusBadRequest, err)
+		panic(err)
+	}
+
+	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
+	if err != nil {
+		writeError(c, http.StatusBadRequest, err)
+		panic(err)
+	}
+
+	body := &accountsv1.ListAccountRequest{
+		Paginate: &accountsv1.Pagination{
+			Offset: offset,
+			Limit:  limit,
+		},
+	}
+	res, err := h.accountsClient.ListAccount(contextWithGrpcBearer(context.Background(), bearer), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (h *accountsHandler) Update(c *gin.Context) {
