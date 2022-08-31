@@ -138,3 +138,105 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
     "token": "string"
 }
 ```
+
+**Errors:**
+- Wrong password or email
+
+### Create group
+
+**Endpoint:** `POST /groups`
+
+**Tags:** `AuthRequired`
+
+**Body:**
+```json
+{
+        "name": "string",
+        "description": "string"
+}
+```
+**Response:**
+```json
+{
+  "group": {
+    "id": "string",
+    "name": "string",
+    "owner_id": "string",
+    "description": "string",
+    "members": [
+      {
+        "account_id": "string"
+      }
+    ]
+  }
+}
+```
+
+### Delete group
+
+**Endpoint:** `DELETE /groups/:id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `id`: UUID of the group.
+
+**Response:**
+```json
+{}
+```
+
+### Update group
+
+**Description**: Update some fields of a group. The body expects an `update_mask` field which consist of a list of strings of all the fields that must be updated. For example, if wanting to update only the `"description"` the `"update_mask"` must be set to `["description"]`.
+
+**Endpoint:** `PATCH /groups/:id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `id`: UUID of the group.
+
+**Body:**
+```json
+{
+    "group": {
+        "name": "string",
+        "description": "string",
+        "owner_id": "string"
+    },
+    "update_mask": ["description"]
+}
+```
+
+**Response:**
+```json
+{
+  "group": {
+    "name": "string",
+    "description": "string",
+    "owner_id": "string",
+    "members": [
+      {
+        "account_id": "string"
+      }
+    ]
+  }
+}
+```
+
+### Join group
+
+**Endpoint:** `POST /groups/:id/join`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `id`: UUID of the group.
+
+**Response:**
+```json
+{}
+```
+
+
