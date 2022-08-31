@@ -41,7 +41,10 @@ func main() {
 	s.Engine.GET("/recommendations/keywords", s.recommendationsHandler.Get)
 
 	s.Engine.POST("/groups", s.groupsHandler.Create)
+	s.Engine.POST("/groups/:id/join", s.groupsHandler.Join)
 	s.Engine.DELETE("/groups/:id", s.groupsHandler.Delete)
+	s.Engine.PATCH("/groups/:id", s.groupsHandler.Update)
+	s.Engine.GET("/groups/:id/members", s.groupsHandler.ListMembers)
 
 	s.Run()
 	defer s.Close()
