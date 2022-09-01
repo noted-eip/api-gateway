@@ -101,6 +101,31 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 }
 ```
 
+### List account
+
+**Description:** List accounts with pagination  (limit, offset)
+
+**Endpoint:** `GET /accounts?offset&limit`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `offset`: integer of the first account.
+- `limit`: integer of the last account.
+
+**Response:**
+```json
+{
+  "accounts": [
+    {
+      "id": "string",
+      "name": "string",
+      "email": "string"
+    }
+  ]
+}
+```
+
 ### Delete account
 
 **Endpoint:** `DELETE /accounts/:id`
