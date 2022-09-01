@@ -3,8 +3,9 @@ package main
 import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	"context"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type groupsHandler struct {
@@ -107,7 +108,7 @@ func (h *groupsHandler) Join(c *gin.Context) {
 	}
 
 	body := &accountsv1.JoinGroupRequest{
-		Id: c.Param("id")
+		Id: c.Param("id"),
 	}
 
 	res, err := h.groupsClient.JoinGroup(contextWithGrpcBearer(context.Background(), bearer), body)
