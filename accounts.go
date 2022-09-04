@@ -80,13 +80,13 @@ func (h *accountsHandler) List(c *gin.Context) {
 	offset, err := strconv.ParseInt(c.Query("offset"), 10, 64)
 	if err != nil {
 		writeError(c, http.StatusBadRequest, err)
-		panic(err)
+		return
 	}
 
 	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
 	if err != nil {
 		writeError(c, http.StatusBadRequest, err)
-		panic(err)
+		return
 	}
 
 	body := &accountsv1.ListAccountRequest{

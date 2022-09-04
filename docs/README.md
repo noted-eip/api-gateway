@@ -101,28 +101,28 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 }
 ```
 
-### List account
+### List accounts
 
-**Description:** List accounts with pagination  (limit, offset)
+**Description:** List accounts with pagination
 
-**Endpoint:** `GET /accounts?offset&limit`
+**Endpoint:** `GET /accounts`
 
 **Tags:** `AuthRequired`
 
 **Path:**
-- `offset`: integer of the first account.
-- `limit`: integer of the last account.
+- `offset`: integer cursor.
+- `limit`: maximum number of objects returned.
 
 **Response:**
 ```json
 {
-  "accounts": [
-    {
-      "id": "string",
-      "name": "string",
-      "email": "string"
-    }
-  ]
+    "accounts": [
+        {
+            "id": "string",
+            "name": "string",
+            "email": "string"
+        }
+    ]
 }
 ```
 
@@ -176,24 +176,24 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 **Body:**
 ```json
 {
-        "name": "string",
-        "description": "string"
+    "name": "string",
+    "description": "string"
 }
 ```
 **Response:**
 ```json
 {
-  "group": {
-    "id": "string",
-    "name": "string",
-    "owner_id": "string",
-    "description": "string",
-    "members": [
-      {
-        "account_id": "string"
-      }
-    ]
-  }
+    "group": {
+        "id": "string",
+        "name": "string",
+        "owner_id": "string",
+        "description": "string",
+        "members": [
+            {
+                "account_id": "string"
+            }
+        ]
+    }
 }
 ```
 
@@ -237,16 +237,16 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 **Response:**
 ```json
 {
-  "group": {
-    "name": "string",
-    "description": "string",
-    "owner_id": "string",
-    "members": [
-      {
-        "account_id": "string"
-      }
-    ]
-  }
+    "group": {
+        "name": "string",
+        "description": "string",
+        "owner_id": "string",
+        "members": [
+            {
+                "account_id": "string"
+            }
+        ]
+    }
 }
 ```
 

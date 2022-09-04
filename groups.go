@@ -106,8 +106,9 @@ func (h *groupsHandler) Join(c *gin.Context) {
 		return
 	}
 
-	body := &accountsv1.JoinGroupRequest{}
-	body.Id = c.Param("id")
+	body := &accountsv1.JoinGroupRequest{
+		Id: c.Param("id")
+	}
 
 	res, err := h.groupsClient.JoinGroup(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
