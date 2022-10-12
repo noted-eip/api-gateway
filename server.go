@@ -125,12 +125,12 @@ func (s *server) initClientConn(address string) *grpc.ClientConn {
 func (s *server) initLogger() {
 	var err error
 	if *environment == envIsDev {
-		s.logger, err = zap.NewDevelopment(zap.WithCaller(false))
+		s.logger, err = zap.NewDevelopment(zap.WithCaller(false), zap.AddStacktrace(zap.PanicLevel))
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		s.logger, err = zap.NewProduction(zap.WithCaller(false))
+		s.logger, err = zap.NewProduction(zap.WithCaller(false), zap.AddStacktrace(zap.PanicLevel))
 		if err != nil {
 			panic(err)
 		}
