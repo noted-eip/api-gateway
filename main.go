@@ -38,13 +38,13 @@ func main() {
 	s.Engine.PATCH("/accounts/:id", s.accountsHandler.Update)
 	s.Engine.DELETE("/accounts/:id", s.accountsHandler.Delete)
 
-	s.Engine.GET("/recommendations/keywords", s.recommendationsHandler.Get)
-
 	s.Engine.POST("/groups", s.groupsHandler.Create)
 	s.Engine.POST("/groups/:id/join", s.groupsHandler.Join)
 	s.Engine.DELETE("/groups/:id", s.groupsHandler.Delete)
 	s.Engine.PATCH("/groups/:id", s.groupsHandler.Update)
 	s.Engine.GET("/groups/:id/members", s.groupsHandler.ListMembers)
+
+	s.Engine.POST("/recommendations/keywords", s.recommendationsHandler.ExtractKeywords)
 
 	s.Run()
 	defer s.Close()

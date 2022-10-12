@@ -12,7 +12,7 @@ type recommendationsHandler struct {
 	recommendationsClient recommendationsv1.RecommendationsAPIClient
 }
 
-func (h *recommendationsHandler) Get(c *gin.Context) {
+func (h *recommendationsHandler) ExtractKeywords(c *gin.Context) {
 	body := &recommendationsv1.ExtractKeywordsRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
