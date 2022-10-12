@@ -264,4 +264,20 @@ The endpoints requiring authentication are marked with the tag `AuthRequired`.
 {}
 ```
 
+### Extract Keywords
 
+**Endpoint:** `POST /recommendations/keywords`
+
+**Body:**
+```json
+{
+    "content": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "keywords": ["strings"]
+}
+```
