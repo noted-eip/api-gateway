@@ -46,7 +46,7 @@ func (s *server) Init() {
 	}
 
 	s.recommendationsConn = s.initClientConn(*recommendationsServiceAddress)
-	s.recommendationsClient = recommendationsv1.NewRecommendationsAPIClient(s.accountsConn)
+	s.recommendationsClient = recommendationsv1.NewRecommendationsAPIClient(s.recommendationsConn)
 	s.recommendationsHandler = &recommendationsHandler{
 		recommendationsClient: s.recommendationsClient,
 	}
