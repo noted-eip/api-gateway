@@ -4,7 +4,6 @@ import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	"context"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -56,22 +55,11 @@ func (h *accountsHandler) ListAccounts(c *gin.Context) {
 		return
 	}
 
-	offset, err := strconv.ParseInt(c.Query("offset"), 10, 32)
-	if err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
-	}
-
-	limit, err := strconv.ParseInt(c.Query("limit"), 10, 32)
-	if err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
-	}
-
 	body := &accountsv1.ListAccountsRequest{
-		Limit:  int32(limit),
-		Offset: int32(offset),
+		Limit:  queryAsInt32OrDefault(c, "limit", 0),
+		Offset: queryAsInt32OrDefault(c, "offset", 0),
 	}
+
 	res, err := h.accountsClient.ListAccounts(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err)

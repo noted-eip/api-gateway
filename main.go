@@ -46,18 +46,18 @@ func main() {
 	s.Engine.DELETE("/groups/:group_id", s.groupsHandler.DeleteGroup)
 	s.Engine.GET("/groups", s.groupsHandler.ListGroups)
 
-	// // Group Members
-	// s.Engine.GET("/groups/:group_id/members/:member_id", s.groupsHandler.GetGroupMember)
-	// s.Engine.PATCH("/groups/:group_id/members/:member_id", s.groupsHandler.UpdateGroupMember)
-	// s.Engine.DELETE("/groups/:group_id/members/:member_id", s.groupsHandler.RemoveGroupMember)
-	// s.Engine.GET("/groups/:group_id/members", s.groupsHandler.ListGroupMembers)
+	// Group Members
+	s.Engine.GET("/groups/:group_id/members/:member_id", s.groupsHandler.GetGroupMember)
+	s.Engine.PATCH("/groups/:group_id/members/:member_id", s.groupsHandler.UpdateGroupMember)
+	s.Engine.DELETE("/groups/:group_id/members/:member_id", s.groupsHandler.RemoveGroupMember)
+	s.Engine.GET("/groups/:group_id/members", s.groupsHandler.ListGroupMembers)
 
-	// // Group Notes
-	// s.Engine.POST("/groups/:group_id/notes", s.groupsHandler.AddGroupNote)
-	// s.Engine.GET("/groups/:group_id/notes/:note_id", s.groupsHandler.GetGroupNote)
-	// s.Engine.PATCH("/groups/:group_id/notes/:note_id", s.groupsHandler.UpdateGroupNote)
-	// s.Engine.DELETE("/groups/:group_id/notes/:note_id", s.groupsHandler.RemoveGroupNote)
-	// s.Engine.GET("/groups/:group_id/notes", s.groupsHandler.ListGroupNotes)
+	// Group Notes
+	s.Engine.POST("/groups/:group_id/notes", s.groupsHandler.AddGroupNote)
+	s.Engine.GET("/groups/:group_id/notes/:note_id", s.groupsHandler.GetGroupNote)
+	s.Engine.PATCH("/groups/:group_id/notes/:note_id", s.groupsHandler.UpdateGroupNote)
+	s.Engine.DELETE("/groups/:group_id/notes/:note_id", s.groupsHandler.RemoveGroupNote)
+	s.Engine.GET("/groups/:group_id/notes", s.groupsHandler.ListGroupNotes)
 
 	// // Invites
 	// s.Engine.POST("/invites", s.invitesHandler.SendInvite)

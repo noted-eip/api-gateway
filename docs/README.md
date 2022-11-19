@@ -20,8 +20,16 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Update Group](#update-group)
       - [Delete Group](#delete-group)
       - [List Groups](#list-groups)
+      - [Get Group Member](#get-group-member)
+      - [Update Group Member](#update-group-member)
+      - [Remove Group Member](#remove-group-member)
+      - [List Group Members](#list-group-members)
+      - [Add Group Note](#add-group-note)
+      - [Get Group Note](#get-group-note)
+      - [Update Group Note](#update-group-note)
+      - [Remove Group Note](#remove-group-note)
+      - [List Group Notes](#list-group-notes)
     - [Invites](#invites)
-    - [Notes](#notes)
     - [Recommendations](#recommendations)
       - [Extract Keywords](#extract-keywords)
 
@@ -153,8 +161,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 **Tags:** `InternalToken`
 
 **Query:**
-- `offset=<int32>`: integer cursor.
-- `limit=<int32>`: maximum number of objects returned.
+- `offset=<int32>`: (Optional) integer cursor.
+- `limit=<int32>`: (Optional) maximum number of objects returned.
 
 **Response:**
 ```json
@@ -269,15 +277,16 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 #### List Groups
 
-**Description:** Must be groups member.
+**Description:** Must be group member.
 
 **Endpoint:** `GET /groups`
 
 **Tags:** `AuthRequired`
 
 **Query:**
-- `offset=<int32>`: integer cursor.
-- `limit=<int32>`: maximum number of objects returned.
+- `account_id=<string>`: list groups of account.
+- `offset=<int32>`: (Optional) integer cursor.
+- `limit=<int32>`: (Optional) maximum number of objects returned.
 
 **Response:**
 ```json
@@ -293,9 +302,249 @@ This API enforces authorization. For example, you cannot modify a group you're n
 }
 ```
 
-### Invites
+#### Get Group Member
 
-### Notes
+**Description:** Must be group member.
+
+**Endpoint:** `GET /groups/:group_id/members/:member_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+- `member_id`: UUID of the account.
+
+**Response:**
+```json
+{
+    "member": {
+        "account_id": "string",
+        "role": "string",
+        "created_at": "string"
+    }
+}
+```
+
+#### Update Group Member
+
+**Description**: Must be group administrator.
+
+**Endpoint:** `PATCH /groups/:group_id/members/:member_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+- `member_id`: UUID of the account.
+
+**Body:**
+```json
+{
+    "member": {
+        "role": "string",
+    },
+    "update_mask": ["role"]
+}
+```
+
+**Response:**
+```json
+{
+    "member": {
+        "account_id": "string",
+        "role": "string",
+        "created_at": "string"
+    }
+}
+```
+
+#### Remove Group Member
+
+**Description:** Must be group administrator or the authenticated user removing itself from the group.
+
+**Endpoint:** `DELETE /groups/:group_id/members/:member_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+- `member_id`: UUID of the account.
+
+**Response:**
+```json
+{}
+```
+
+#### List Group Members
+
+**Description:** Must be group member.
+
+**Endpoint:** `GET /groups/:group_id/members`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+
+**Query:**
+- `offset=<int32>`: (Optional) integer cursor.
+- `limit=<int32>`: (Optional) maximum number of objects returned.
+
+**Response:**
+```json
+{
+    "members": [
+        {
+            "account_id": "string",
+            "role": "string",
+            "created_at": "string",
+        }
+    ]
+}
+```
+
+#### Add Group Note
+
+**Description:** Must be group member and author of the note.
+
+**Endpoint:** `POST /groups/:group_id/notes`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+
+**Body:**
+```json
+{
+    "group_id": "string",
+    "note_id": "string",
+    "title": "string",
+    "author_account_id": "string",
+    "folder_id": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "note": {
+        "note_id": "string",
+        "title": "string",
+        "author_account_id": "string",
+        "folder_id": "string"
+    }
+}
+```
+
+#### Get Group Note
+
+**Description:** Must be group member.
+
+**Endpoint:** `GET /groups/:group_id/notes/:note_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+- `note_id`: UUID of the group note.
+
+**Response:**
+```json
+{
+    "note": {
+        "note_id": "string",
+        "title": "string",
+        "author_account_id": "string",
+        "folder_id": "string"
+    }
+}
+```
+
+#### Update Group Note
+
+**Description:** Must be group member. Can only update `note.title` and `note.folder_id`.
+
+**Endpoint:** `PATCH /groups/:group_id/notes/:note_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+- `note_id`: UUID of the group note.
+
+**Body:**
+```json
+{
+    "note": {
+        "title": "string",
+        "folder_id": "string"
+    },
+    "update_mask": ["title", "folder_id"]
+}
+```
+
+**Response:**
+```json
+{
+    "note": {
+        "note_id": "string",
+        "title": "string",
+        "author_account_id": "string",
+        "folder_id": "string"
+    }
+}
+```
+
+#### Remove Group Note
+
+**Description:** Must be group member, author of the note or administrator.
+
+**Endpoint:** `DELETE /groups/:group_id/notes/:note_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+- `note_id`: UUID of the group note.
+
+**Response:**
+```json
+{}
+```
+
+#### List Group Notes
+
+**Description:** Must be group member.
+
+**Endpoint:** `GET /groups/:group_id/notes`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+
+**Query:**
+- `offset=<int32>`: (Optional) integer cursor.
+- `limit=<int32>`: (Optional) maximum number of objects returned.
+- `author_account_id=<string>`: (Optional) List only notes from that account.
+- `folder_id=<string>`: (Optional) coming soon.
+
+**Response:**
+```json
+{
+    "notes": [
+        {
+            "note_id": "string",
+            "title": "string",
+            "author_account_id": "string",
+            "folder_id": "string"
+        }
+    ]
+}
+```
+
+### Invites
 
 ### Recommendations
 

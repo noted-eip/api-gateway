@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
@@ -68,4 +69,12 @@ func authenticate(c *gin.Context) (string, error) {
 		return "", ErrUnauthenticated
 	}
 	return bearer, nil
+}
+
+func queryAsInt32OrDefault(c *gin.Context, key string, def int32) int32 {
+	val, err := strconv.ParseInt(c.Query(key), 10, 32)
+	if err != nil {
+		return def
+	}
+	return int32(val)
 }
