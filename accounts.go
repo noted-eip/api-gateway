@@ -3,19 +3,125 @@ package main
 import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	"context"
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	ErrUnauthenticated = errors.New("unauthenticated")
-)
-
 type accountsHandler struct {
 	accountsClient accountsv1.AccountsAPIClient
+}
+
+func (h *accountsHandler) CreateAccount(c *gin.Context) {
+	body := &accountsv1.CreateAccountRequest{}
+	if err := c.ShouldBindJSON(body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
+		return
+	}
+
+	res, err := h.accountsClient.CreateAccount(context.Background(), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *accountsHandler) GetAccount(c *gin.Context) {
+	bearer, err := authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
+	body := &accountsv1.GetAccountRequest{
+		Id: c.Param("account_id"),
+	}
+
+	res, err := h.accountsClient.GetAccount(contextWithGrpcBearer(context.Background(), bearer), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *accountsHandler) ListAccounts(c *gin.Context) {
+	bearer, err := authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
+	offset, err := strconv.ParseInt(c.Query("offset"), 10, 32)
+	if err != nil {
+		writeError(c, http.StatusBadRequest, err)
+		return
+	}
+
+	limit, err := strconv.ParseInt(c.Query("limit"), 10, 32)
+	if err != nil {
+		writeError(c, http.StatusBadRequest, err)
+		return
+	}
+
+	body := &accountsv1.ListAccountsRequest{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	}
+	res, err := h.accountsClient.ListAccounts(contextWithGrpcBearer(context.Background(), bearer), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *accountsHandler) UpdateAccount(c *gin.Context) {
+	bearer, err := authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
+	body := &accountsv1.UpdateAccountRequest{}
+	if err := c.ShouldBindJSON(body); err != nil {
+		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+		return
+	}
+	body.Account.Id = c.Param("account_id")
+
+	res, err := h.accountsClient.UpdateAccount(contextWithGrpcBearer(context.Background(), bearer), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *accountsHandler) DeleteAccount(c *gin.Context) {
+	bearer, err := authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
+	body := &accountsv1.DeleteAccountRequest{
+		Id: c.Param("account_id"),
+	}
+
+	res, err := h.accountsClient.DeleteAccount(contextWithGrpcBearer(context.Background(), bearer), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (h *accountsHandler) Authenticate(c *gin.Context) {
@@ -32,127 +138,4 @@ func (h *accountsHandler) Authenticate(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
-}
-
-func (h *accountsHandler) Create(c *gin.Context) {
-	body := &accountsv1.CreateAccountRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
-	}
-
-	res, err := h.accountsClient.CreateAccount(context.Background(), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
-func (h *accountsHandler) Get(c *gin.Context) {
-	bearer, err := h.authenticate(c)
-	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
-		return
-	}
-
-	body := &accountsv1.GetAccountRequest{
-		Id: c.Param("id"),
-	}
-
-	res, err := h.accountsClient.GetAccount(contextWithGrpcBearer(context.Background(), bearer), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
-func (h *accountsHandler) List(c *gin.Context) {
-	bearer, err := h.authenticate(c)
-	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
-		return
-	}
-
-	offset, err := strconv.ParseInt(c.Query("offset"), 10, 64)
-	if err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
-	}
-
-	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
-	if err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
-	}
-
-	body := &accountsv1.ListAccountRequest{
-		Paginate: &accountsv1.Pagination{
-			Offset: offset,
-			Limit:  limit,
-		},
-	}
-	res, err := h.accountsClient.ListAccount(contextWithGrpcBearer(context.Background(), bearer), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
-func (h *accountsHandler) Update(c *gin.Context) {
-	bearer, err := h.authenticate(c)
-	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
-		return
-	}
-
-	body := &accountsv1.UpdateAccountRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
-		return
-	}
-	body.Account.Id = c.Param("id")
-
-	res, err := h.accountsClient.UpdateAccount(contextWithGrpcBearer(context.Background(), bearer), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
-func (h *accountsHandler) Delete(c *gin.Context) {
-	bearer, err := h.authenticate(c)
-	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
-		return
-	}
-
-	body := &accountsv1.DeleteAccountRequest{
-		Id: c.Param("id"),
-	}
-
-	res, err := h.accountsClient.DeleteAccount(contextWithGrpcBearer(context.Background(), bearer), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
-// authenticate fetches the bearer string from the authorization header or
-// returns an error if it is missing.
-func (h *accountsHandler) authenticate(c *gin.Context) (string, error) {
-	bearer := c.GetHeader(httpAuthorizationHeader)
-	if bearer == "" {
-		return "", ErrUnauthenticated
-	}
-	return bearer, nil
 }

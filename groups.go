@@ -12,8 +12,8 @@ type groupsHandler struct {
 	groupsClient accountsv1.GroupsAPIClient
 }
 
-func (h *groupsHandler) Create(c *gin.Context) {
-	bearer, err := h.authenticate(c)
+func (h *groupsHandler) CreateGroup(c *gin.Context) {
+	bearer, err := authenticate(c)
 	if err != nil {
 		writeError(c, http.StatusUnauthorized, err)
 		return
@@ -34,15 +34,35 @@ func (h *groupsHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *groupsHandler) Delete(c *gin.Context) {
-	bearer, err := h.authenticate(c)
+func (h *groupsHandler) GetGroup(c *gin.Context) {
+	bearer, err := authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
+	body := &accountsv1.GetGroupRequest{
+		GroupId: c.Param("group_id"),
+	}
+
+	res, err := h.groupsClient.GetGroup(contextWithGrpcBearer(context.Background(), bearer), body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *groupsHandler) DeleteGroup(c *gin.Context) {
+	bearer, err := authenticate(c)
 	if err != nil {
 		writeError(c, http.StatusUnauthorized, err)
 		return
 	}
 
 	body := &accountsv1.DeleteGroupRequest{
-		Id: c.Param("id"),
+		GroupId: c.Param("group_id"),
 	}
 
 	res, err := h.groupsClient.DeleteGroup(contextWithGrpcBearer(context.Background(), bearer), body)
@@ -54,32 +74,8 @@ func (h *groupsHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *groupsHandler) ListMembers(c *gin.Context) {
-	bearer, err := h.authenticate(c)
-	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
-		return
-	}
-
-	body := &accountsv1.ListGroupMembersRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
-		return
-	}
-
-	body.Id = c.Param("id")
-
-	res, err := h.groupsClient.ListGroupMembers(contextWithGrpcBearer(context.Background(), bearer), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
-func (h *groupsHandler) Update(c *gin.Context) {
-	bearer, err := h.authenticate(c)
+func (h *groupsHandler) UpdateGroup(c *gin.Context) {
+	bearer, err := authenticate(c)
 	if err != nil {
 		writeError(c, http.StatusUnauthorized, err)
 		return
@@ -90,7 +86,8 @@ func (h *groupsHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusOK, httpError{Error: err.Error()})
 		return
 	}
-	body.Group.Id = c.Param("id")
+
+	body.Group.Id = c.Param("group_id")
 	res, err := h.groupsClient.UpdateGroup(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err)
@@ -100,32 +97,22 @@ func (h *groupsHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *groupsHandler) Join(c *gin.Context) {
-	bearer, err := h.authenticate(c)
+func (h *groupsHandler) ListGroups(c *gin.Context) {
+	bearer, err := authenticate(c)
 	if err != nil {
 		writeError(c, http.StatusUnauthorized, err)
 		return
 	}
 
-	body := &accountsv1.JoinGroupRequest{
-		Id: c.Param("id"),
+	body := &accountsv1.ListGroupsRequest{
+		AccountId: c.Query("account_id"),
 	}
 
-	res, err := h.groupsClient.JoinGroup(contextWithGrpcBearer(context.Background(), bearer), body)
+	res, err := h.groupsClient.ListGroups(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, res)
-}
-
-// authenticate fetches the bearer string from the authorization header or
-// returns an error if it is missing.
-func (h *groupsHandler) authenticate(c *gin.Context) (string, error) {
-	bearer := c.GetHeader(httpAuthorizationHeader)
-	if bearer == "" {
-		return "", ErrUnauthenticated
-	}
-	return bearer, nil
 }

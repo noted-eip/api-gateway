@@ -31,19 +31,42 @@ func main() {
 	s.Engine.Use(s.AccessControlMiddleware)
 	s.Engine.Use(s.PreflightMiddleware)
 
+	// Accounts
+	s.Engine.POST("/accounts", s.accountsHandler.CreateAccount)
+	s.Engine.GET("/accounts/:account_id", s.accountsHandler.GetAccount)
+	s.Engine.PATCH("/accounts/:account_id", s.accountsHandler.UpdateAccount)
+	s.Engine.DELETE("/accounts/:account_id", s.accountsHandler.DeleteAccount)
+	s.Engine.GET("/accounts", s.accountsHandler.ListAccounts)
 	s.Engine.POST("/authenticate", s.accountsHandler.Authenticate)
-	s.Engine.GET("/accounts", s.accountsHandler.List)
-	s.Engine.GET("/accounts/:id", s.accountsHandler.Get)
-	s.Engine.POST("/accounts", s.accountsHandler.Create)
-	s.Engine.PATCH("/accounts/:id", s.accountsHandler.Update)
-	s.Engine.DELETE("/accounts/:id", s.accountsHandler.Delete)
 
-	s.Engine.POST("/groups", s.groupsHandler.Create)
-	s.Engine.POST("/groups/:id/join", s.groupsHandler.Join)
-	s.Engine.DELETE("/groups/:id", s.groupsHandler.Delete)
-	s.Engine.PATCH("/groups/:id", s.groupsHandler.Update)
-	s.Engine.GET("/groups/:id/members", s.groupsHandler.ListMembers)
+	// Groups
+	s.Engine.POST("/groups", s.groupsHandler.CreateGroup)
+	s.Engine.GET("/groups/:group_id", s.groupsHandler.GetGroup)
+	s.Engine.PATCH("/groups/:group_id", s.groupsHandler.UpdateGroup)
+	s.Engine.DELETE("/groups/:group_id", s.groupsHandler.DeleteGroup)
+	s.Engine.GET("/groups", s.groupsHandler.ListGroups)
 
+	// // Group Members
+	// s.Engine.GET("/groups/:group_id/members/:member_id", s.groupsHandler.GetGroupMember)
+	// s.Engine.PATCH("/groups/:group_id/members/:member_id", s.groupsHandler.UpdateGroupMember)
+	// s.Engine.DELETE("/groups/:group_id/members/:member_id", s.groupsHandler.RemoveGroupMember)
+	// s.Engine.GET("/groups/:group_id/members", s.groupsHandler.ListGroupMembers)
+
+	// // Group Notes
+	// s.Engine.POST("/groups/:group_id/notes", s.groupsHandler.AddGroupNote)
+	// s.Engine.GET("/groups/:group_id/notes/:note_id", s.groupsHandler.GetGroupNote)
+	// s.Engine.PATCH("/groups/:group_id/notes/:note_id", s.groupsHandler.UpdateGroupNote)
+	// s.Engine.DELETE("/groups/:group_id/notes/:note_id", s.groupsHandler.RemoveGroupNote)
+	// s.Engine.GET("/groups/:group_id/notes", s.groupsHandler.ListGroupNotes)
+
+	// // Invites
+	// s.Engine.POST("/invites", s.invitesHandler.SendInvite)
+	// s.Engine.GET("/invites/:invite_id", s.invitesHandler.GetInvite)
+	// s.Engine.POST("/invites/:invite_id/accept", s.invitesHandler.AcceptInvite)
+	// s.Engine.POST("/invites/:invite_id/deny", s.invitesHandler.DenyInvite)
+	// s.Engine.GET("/invites", s.invitesHandler.ListInvites)
+
+	// Recommendations
 	s.Engine.POST("/recommendations/keywords", s.recommendationsHandler.ExtractKeywords)
 
 	s.Run()

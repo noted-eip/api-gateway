@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,10 @@ import (
 var (
 	httpAuthorizationHeader = "Authorization"
 	grpcAuthorizationHeader = "authorization"
+)
+
+var (
+	ErrUnauthenticated = errors.New("unauthenticated")
 )
 
 var grpcCodeToHttpCode = map[codes.Code]int{
@@ -55,4 +60,12 @@ func writeError(c *gin.Context, code int, err error) {
 		return
 	}
 	c.JSON(code, httpError{Error: err.Error()})
+}
+
+func authenticate(c *gin.Context) (string, error) {
+	bearer := c.GetHeader(httpAuthorizationHeader)
+	if bearer == "" {
+		return "", ErrUnauthenticated
+	}
+	return bearer, nil
 }
