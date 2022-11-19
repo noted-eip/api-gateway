@@ -23,6 +23,9 @@ type server struct {
 	groupsClient  accountsv1.GroupsAPIClient
 	groupsHandler *groupsHandler
 
+	invitesClient  accountsv1.InvitesAPIClient
+	invitesHandler *invitesHandler
+
 	recommendationsConn    *grpc.ClientConn
 	recommendationsClient  recommendationsv1.RecommendationsAPIClient
 	recommendationsHandler *recommendationsHandler
@@ -43,6 +46,11 @@ func (s *server) Init() {
 	s.groupsClient = accountsv1.NewGroupsAPIClient(s.accountsConn)
 	s.groupsHandler = &groupsHandler{
 		groupsClient: s.groupsClient,
+	}
+
+	s.invitesClient = accountsv1.NewInvitesAPIClient(s.accountsConn)
+	s.invitesHandler = &invitesHandler{
+		invitesClient: s.invitesClient,
 	}
 
 	s.recommendationsConn = s.initClientConn(*recommendationsServiceAddress)

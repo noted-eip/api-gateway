@@ -30,6 +30,11 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Remove Group Note](#remove-group-note)
       - [List Group Notes](#list-group-notes)
     - [Invites](#invites)
+      - [Send Invite](#send-invite)
+      - [Get Invite](#get-invite)
+      - [Accept Invite](#accept-invite)
+      - [Deny Invite](#deny-invite)
+      - [List Invites](#list-invites)
     - [Recommendations](#recommendations)
       - [Extract Keywords](#extract-keywords)
 
@@ -161,8 +166,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 **Tags:** `InternalToken`
 
 **Query:**
-- `offset=<int32>`: (Optional) integer cursor.
-- `limit=<int32>`: (Optional) maximum number of objects returned.
+- `offset=<int32>`: (Optional) Integer cursor.
+- `limit=<int32>`: (Optional) Maximum number of objects returned.
 
 **Response:**
 ```json
@@ -285,8 +290,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 **Query:**
 - `account_id=<string>`: list groups of account.
-- `offset=<int32>`: (Optional) integer cursor.
-- `limit=<int32>`: (Optional) maximum number of objects returned.
+- `offset=<int32>`: (Optional) Integer cursor.
+- `limit=<int32>`: (Optional) Maximum number of objects returned.
 
 **Response:**
 ```json
@@ -387,8 +392,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 - `group_id`: UUID of the group.
 
 **Query:**
-- `offset=<int32>`: (Optional) integer cursor.
-- `limit=<int32>`: (Optional) maximum number of objects returned.
+- `offset=<int32>`: (Optional) Integer cursor.
+- `limit=<int32>`: (Optional) Maximum number of objects returned.
 
 **Response:**
 ```json
@@ -525,8 +530,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 - `group_id`: UUID of the group.
 
 **Query:**
-- `offset=<int32>`: (Optional) integer cursor.
-- `limit=<int32>`: (Optional) maximum number of objects returned.
+- `offset=<int32>`: (Optional) Integer cursor.
+- `limit=<int32>`: (Optional) Maximum number of objects returned.
 - `author_account_id=<string>`: (Optional) List only notes from that account.
 - `folder_id=<string>`: (Optional) coming soon.
 
@@ -545,6 +550,116 @@ This API enforces authorization. For example, you cannot modify a group you're n
 ```
 
 ### Invites
+
+#### Send Invite
+
+**Description:** The sender defaults to the authenticated user. Must be group member.
+
+**Endpoint:** `POST /invites`
+
+**Body:**
+```json
+{
+    "group_id": "string",
+    "recipient_account_id": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "invite": {
+        "id": "string",
+        "group_id": "string",
+        "sender_account_id": "string",
+        "recipient_account_id": "string"
+    }
+}
+```
+
+#### Get Invite
+
+**Description:** Must be group administrator or sender or recipient.
+
+**Endpoint:** `GET /invites/:invite_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `invite_id`: UUID of the invite.
+
+**Response:**
+```json
+{
+    "invite": {
+        "id": "string",
+        "group_id": "string",
+        "sender_account_id": "string",
+        "recipient_account_id": "string"
+    }
+}
+```
+
+#### Accept Invite
+
+**Description:** Must be recipient. Accepting an invitation automatically adds the recipient to the group and deletes the invite.
+
+**Endpoint:** `POST /invites/:invite_id/accept`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `invite_id`: UUID of the invite.
+
+**Response:**
+```json
+{}
+```
+
+#### Deny Invite
+
+**Description:** Must be recipient. Deletes the invitation without making the recipient join the group.
+
+**Endpoint:** `POST /invites/:invite_id/deny`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `invite_id`: UUID of the invite.
+
+**Response:**
+```json
+{}
+```
+
+#### List Invites
+
+**Description:** Must be group administrator or sender or recipient.
+
+**Endpoint:** `GET /invites`
+
+**Tags:** `AuthRequired`
+
+**Query:**
+- `sender_account_id=<string>`: (Optional) Returns only invites from sender.
+- `recipient_account_id=<string>`: (Optional) Returns only invites destined to recipient.
+- `group_id=<string>`: (Optional) Returns only invites for a given group.
+- `offset=<int32>`: (Optional) Integer cursor.
+- `limit=<int32>`: (Optional) Maximum number of objects returned.
+
+**Response:**
+```json
+{
+    "invites": [
+        {
+            "id": "string",
+            "group_id": "string",
+            "sender_account_id": "string",
+            "recipient_account_id": "string"
+        }
+    ]
+}
+```
 
 ### Recommendations
 

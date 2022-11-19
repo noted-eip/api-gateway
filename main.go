@@ -59,12 +59,12 @@ func main() {
 	s.Engine.DELETE("/groups/:group_id/notes/:note_id", s.groupsHandler.RemoveGroupNote)
 	s.Engine.GET("/groups/:group_id/notes", s.groupsHandler.ListGroupNotes)
 
-	// // Invites
-	// s.Engine.POST("/invites", s.invitesHandler.SendInvite)
-	// s.Engine.GET("/invites/:invite_id", s.invitesHandler.GetInvite)
-	// s.Engine.POST("/invites/:invite_id/accept", s.invitesHandler.AcceptInvite)
-	// s.Engine.POST("/invites/:invite_id/deny", s.invitesHandler.DenyInvite)
-	// s.Engine.GET("/invites", s.invitesHandler.ListInvites)
+	// Invites
+	s.Engine.POST("/invites", s.invitesHandler.SendInvite)
+	s.Engine.GET("/invites/:invite_id", s.invitesHandler.GetInvite)
+	s.Engine.POST("/invites/:invite_id/accept", s.invitesHandler.AcceptInvite)
+	s.Engine.POST("/invites/:invite_id/deny", s.invitesHandler.DenyInvite)
+	s.Engine.GET("/invites", s.invitesHandler.ListInvites)
 
 	// Recommendations
 	s.Engine.POST("/recommendations/keywords", s.recommendationsHandler.ExtractKeywords)
