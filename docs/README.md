@@ -17,6 +17,7 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Authenticate](#authenticate)
     - [Groups](#groups)
       - [Create Group](#create-group)
+      - [Get Group](#get-group)
       - [Update Group](#update-group)
       - [Delete Group](#delete-group)
       - [List Groups](#list-groups)
@@ -226,6 +227,29 @@ This API enforces authorization. For example, you cannot modify a group you're n
         "name": "string",
         "description": "string",
         "created_at": "string",
+    }
+}
+```
+
+#### Get Group
+
+**Description:** Must be group member.
+
+**Endpoint:** `GET /groups/:group_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `group_id`: UUID of the group.
+
+**Response:**
+```json
+{
+    "group": {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "created_at": "string"
     }
 }
 ```
