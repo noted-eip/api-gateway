@@ -105,7 +105,7 @@ func (h *notesHandler) ListNotes(c *gin.Context) {
 	}
 
 	body := &notesv1.ListNotesRequest{
-		AuthorId: c.Param("author_id"),
+		AuthorId: c.Query("author_id"),
 	}
 
 	res, err := h.notesClient.ListNotes(contextWithGrpcBearer(context.Background(), bearer), body)
@@ -124,10 +124,14 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		return
 	}
 
-	body := &notesv1.ExportNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
+	formatMap := map[string]notesv1.NoteExportFormat{
+		"":    notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_INVALID,
+		"md":  notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_MARKDOWN,
+		"pdf": notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF,
+	}
+
+	body := &notesv1.ExportNoteRequest{
+		ExportFormat: notesv1.NoteExportFormat(formatMap[c.Query("format")]),
 	}
 	body.NoteId = c.Param("note_id")
 
@@ -137,7 +141,7 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.Data(http.StatusOK, "File", res.File)
 }
 
 func (h *notesHandler) InsertBlock(c *gin.Context) {

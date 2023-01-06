@@ -72,13 +72,13 @@ func main() {
 	s.Engine.POST("/notes", s.notesHandler.CreateNote)
 	s.Engine.PATCH("/notes/:note_id", s.notesHandler.UpdateNote)
 	s.Engine.DELETE("/notes/:note_id", s.notesHandler.DeleteNote)
-	s.Engine.GET("/notes/:author_id", s.notesHandler.ListNotes)
-	s.Engine.GET("/notes/:note_id/export", s.notesHandler.ExportNote)
+	s.Engine.GET("/notes/?author_id=", s.notesHandler.ListNotes)
+	s.Engine.GET("/notes/:note_id/export/?format=", s.notesHandler.ExportNote)
 
 	// Blocks
 	s.Engine.POST("/notes/:note_id/blocks", s.notesHandler.InsertBlock)
-	s.Engine.PATCH("/notes/blocks/:block_id", s.notesHandler.UpdateBlock)
-	s.Engine.DELETE("/notes/blocks/:block_id", s.notesHandler.DeleteBlock)
+	s.Engine.PATCH("/notes/:note_id/blocks/:block_id", s.notesHandler.UpdateBlock)
+	s.Engine.DELETE("/notes/:note_id/blocks/:block_id", s.notesHandler.DeleteBlock)
 
 	// Recommendations
 	s.Engine.POST("/recommendations/keywords", s.recommendationsHandler.ExtractKeywords)
