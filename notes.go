@@ -3,6 +3,7 @@ package main
 import (
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -130,8 +131,15 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		"pdf": notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF,
 	}
 
+	format, ok := formatMap[c.Query("format")]
+	if !ok {
+		err := errors.New("unknow export format")
+		writeError(c, http.StatusBadRequest, err)
+		return
+	}
+
 	body := &notesv1.ExportNoteRequest{
-		ExportFormat: notesv1.NoteExportFormat(formatMap[c.Query("format")]),
+		ExportFormat: notesv1.NoteExportFormat(format),
 	}
 	body.NoteId = c.Param("note_id")
 
