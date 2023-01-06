@@ -581,6 +581,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 **Endpoint:** `POST /invites`
 
+**Tags:** `AuthRequired`
+
 **Body:**
 ```json
 {
