@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	app                           = kingpin.New("api-gateway", "restful json http api for the noted backend").DefaultEnvars()
-	port                          = app.Flag("port", "http api port").Default("3000").Int16()
-	environment                   = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
-	accountsServiceAddress        = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
-	recommendationsServiceAddress = app.Flag("recommendations-service-addr", "the grpc address of the recommendations service").Default("recommendations:3000").String()
+	app                    = kingpin.New("api-gateway", "restful json http api for the noted backend").DefaultEnvars()
+	port                   = app.Flag("port", "http api port").Default("3000").Int16()
+	environment            = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
+	accountsServiceAddress = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
+	languageServiceAddress = app.Flag("language-service-addr", "the grpc address of the language service").Default("language:3000").String()
 )
 
 const (
@@ -66,8 +66,8 @@ func main() {
 	s.Engine.POST("/invites/:invite_id/deny", s.invitesHandler.DenyInvite)
 	s.Engine.GET("/invites", s.invitesHandler.ListInvites)
 
-	// Recommendations
-	s.Engine.POST("/recommendations/keywords", s.recommendationsHandler.ExtractKeywords)
+	// language
+	s.Engine.POST("/language/keywords", s.languageHandler.ExtractKeywords)
 
 	s.Run()
 	defer s.Close()

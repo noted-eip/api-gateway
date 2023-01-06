@@ -2,7 +2,7 @@ package main
 
 import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
-	recommendationsv1 "api-gateway/protorepo/noted/recommendations/v1"
+	languagev1 "api-gateway/protorepo/noted/language/v1"
 	"net/http"
 
 	"fmt"
@@ -26,9 +26,9 @@ type server struct {
 	invitesClient  accountsv1.InvitesAPIClient
 	invitesHandler *invitesHandler
 
-	recommendationsConn    *grpc.ClientConn
-	recommendationsClient  recommendationsv1.RecommendationsAPIClient
-	recommendationsHandler *recommendationsHandler
+	languageConn    *grpc.ClientConn
+	languageClient  languagev1.LanguageAPIClient
+	languageHandler *languageHandler
 
 	logger  *zap.Logger
 	slogger *zap.SugaredLogger
@@ -53,10 +53,10 @@ func (s *server) Init() {
 		invitesClient: s.invitesClient,
 	}
 
-	s.recommendationsConn = s.initClientConn(*recommendationsServiceAddress)
-	s.recommendationsClient = recommendationsv1.NewRecommendationsAPIClient(s.recommendationsConn)
-	s.recommendationsHandler = &recommendationsHandler{
-		recommendationsClient: s.recommendationsClient,
+	s.languageConn = s.initClientConn(*languageServiceAddress)
+	s.languageClient = languagev1.NewLanguageAPIClient(s.languageConn)
+	s.languageHandler = &languageHandler{
+		languageClient: s.languageClient,
 	}
 
 	s.initLogger()
