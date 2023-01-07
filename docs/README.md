@@ -36,8 +36,6 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Accept Invite](#accept-invite)
       - [Deny Invite](#deny-invite)
       - [List Invites](#list-invites)
-    - [Recommendations](#recommendations)
-      - [Extract Keywords](#extract-keywords)
 
 ## Concepts
 
@@ -684,25 +682,5 @@ This API enforces authorization. For example, you cannot modify a group you're n
             "recipient_account_id": "string"
         }
     ]
-}
-```
-
-### Recommendations
-
-#### Extract Keywords
-
-**Endpoint:** `POST /recommendations/keywords`
-
-**Body:**
-```json
-{
-    "content": "string"
-}
-```
-
-**Response:**
-```json
-{
-    "keywords": ["strings"]
 }
 ```

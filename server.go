@@ -3,7 +3,6 @@ package main
 import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
-	recommendationsv1 "api-gateway/protorepo/noted/recommendations/v1"
 	"net/http"
 
 	"fmt"
@@ -31,10 +30,6 @@ type server struct {
 	notesClient  notesv1.NotesAPIClient
 	notesHandler *notesHandler
 
-	recommendationsConn    *grpc.ClientConn
-	recommendationsClient  recommendationsv1.RecommendationsAPIClient
-	recommendationsHandler *recommendationsHandler
-
 	logger  *zap.Logger
 	slogger *zap.SugaredLogger
 
@@ -44,6 +39,7 @@ type server struct {
 func (s *server) Init() {
 	s.accountsConn = s.initClientConn(*accountsServiceAddress)
 	s.accountsClient = accountsv1.NewAccountsAPIClient(s.accountsConn)
+
 	s.accountsHandler = &accountsHandler{
 		accountsClient: s.accountsClient,
 	}
@@ -59,15 +55,10 @@ func (s *server) Init() {
 	}
 
 	s.notesConn = s.initClientConn(*notesServiceAddress)
+
 	s.notesClient = notesv1.NewNotesAPIClient(s.notesConn)
 	s.notesHandler = &notesHandler{
 		notesClient: s.notesClient,
-	}
-
-	s.recommendationsConn = s.initClientConn(*recommendationsServiceAddress)
-	s.recommendationsClient = recommendationsv1.NewRecommendationsAPIClient(s.recommendationsConn)
-	s.recommendationsHandler = &recommendationsHandler{
-		recommendationsClient: s.recommendationsClient,
 	}
 
 	s.initLogger()
