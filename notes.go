@@ -20,6 +20,9 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
+	//convert les types en uint32?
+	//c quoi le soucis avec les data?
+
 	body := &notesv1.CreateNoteRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		writeError(c, http.StatusBadRequest, err)

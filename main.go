@@ -67,12 +67,12 @@ func main() {
 	s.Engine.GET("/invites", s.invitesHandler.ListInvites)
 
 	// Notes
-	s.Engine.GET("/notes/:note_id", s.notesHandler.GetNote)
 	s.Engine.POST("/notes", s.notesHandler.CreateNote)
+	s.Engine.GET("/notes/:note_id", s.notesHandler.GetNote)
 	s.Engine.PATCH("/notes/:note_id", s.notesHandler.UpdateNote)
 	s.Engine.DELETE("/notes/:note_id", s.notesHandler.DeleteNote)
-	s.Engine.GET("/notes/?author_id=", s.notesHandler.ListNotes)
-	s.Engine.GET("/notes/:note_id/export/?format=", s.notesHandler.ExportNote)
+	s.Engine.GET("/notes", s.notesHandler.ListNotes)
+	s.Engine.GET("/notes/:note_id/export", s.notesHandler.ExportNote)
 
 	// Blocks
 	s.Engine.POST("/notes/:note_id/blocks", s.notesHandler.InsertBlock)

@@ -821,7 +821,6 @@ This API enforces authorization. For example, you cannot modify a group you're n
 - `note_id`: UUID of the note.
 
 **Response:** 
-*a blank json response :*
 ```json
 {
 
@@ -867,6 +866,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
                 "nanos": 600000000
             }
         }
+    ]
+}
 ```
 
 #### Export Note
@@ -974,7 +975,6 @@ This API enforces authorization. For example, you cannot modify a group you're n
 - `block_id`: UUID of the block.
 
 **Response:**
-*a blank json response :*
 ```json
 {
 
