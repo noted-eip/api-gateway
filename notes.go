@@ -74,8 +74,16 @@ func (h *notesHandler) UpdateNote(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+
+	requestBody, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	protobuf.Unmarshal(requestBody, body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 	body.Id = c.Param("note_id")
@@ -171,8 +179,15 @@ func (h *notesHandler) InsertBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.InsertBlockRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	requestBody, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	protobuf.Unmarshal(requestBody, body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 	body.NoteId = c.Param("note_id")
@@ -194,8 +209,15 @@ func (h *notesHandler) UpdateBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateBlockRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	requestBody, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	protobuf.Unmarshal(requestBody, body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 	body.Id = c.Param("block_id")
