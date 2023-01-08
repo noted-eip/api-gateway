@@ -36,7 +36,8 @@ func (h *accountsHandler) GetAccount(c *gin.Context) {
 	}
 
 	body := &accountsv1.GetAccountRequest{
-		Id: c.Param("account_id"),
+		Id:    c.Param("account_id"),
+		Email: c.Param("email"),
 	}
 
 	res, err := h.accountsClient.GetAccount(contextWithGrpcBearer(context.Background(), bearer), body)
