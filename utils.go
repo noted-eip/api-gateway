@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -82,14 +83,28 @@ func queryAsInt32OrDefault(c *gin.Context, key string, def int32) int32 {
 	return int32(val)
 }
 
-func convertJsonToProto(c *gin.Context, message protoreflect.ProtoMessage) error {
+func readRequestBody(c *gin.Context, message protoreflect.ProtoMessage) error {
 	requestBody, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		return err
+		return status.Error(codes.Internal, err.Error())
 	}
+
 	err = protojson.Unmarshal(requestBody, message)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid json: %v", err)
 	}
+
 	return nil
+}
+
+func writeResponse(c *gin.Context, message protoreflect.ProtoMessage) {
+	bytes, err := protojson.MarshalOptions{
+		UseProtoNames: true,
+	}.Marshal(message)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/json; charset=utf-8", bytes)
 }

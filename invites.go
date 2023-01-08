@@ -20,8 +20,8 @@ func (h *invitesHandler) SendInvite(c *gin.Context) {
 	}
 
 	body := &accountsv1.SendInviteRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
@@ -31,7 +31,7 @@ func (h *invitesHandler) SendInvite(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *invitesHandler) GetInvite(c *gin.Context) {
@@ -51,7 +51,7 @@ func (h *invitesHandler) GetInvite(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *invitesHandler) AcceptInvite(c *gin.Context) {
@@ -71,7 +71,7 @@ func (h *invitesHandler) AcceptInvite(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *invitesHandler) DenyInvite(c *gin.Context) {
@@ -91,7 +91,7 @@ func (h *invitesHandler) DenyInvite(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *invitesHandler) ListInvites(c *gin.Context) {
@@ -115,5 +115,5 @@ func (h *invitesHandler) ListInvites(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }

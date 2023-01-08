@@ -21,8 +21,8 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 	}
 
 	body := &notesv1.CreateNoteRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
@@ -32,7 +32,7 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) GetNote(c *gin.Context) {
@@ -52,7 +52,7 @@ func (h *notesHandler) GetNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) UpdateNote(c *gin.Context) {
@@ -63,8 +63,8 @@ func (h *notesHandler) UpdateNote(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateNoteRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.Id = c.Param("note_id")
@@ -75,7 +75,7 @@ func (h *notesHandler) UpdateNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) DeleteNote(c *gin.Context) {
@@ -95,7 +95,7 @@ func (h *notesHandler) DeleteNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) ListNotes(c *gin.Context) {
@@ -115,7 +115,7 @@ func (h *notesHandler) ListNotes(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) ExportNote(c *gin.Context) {
@@ -163,8 +163,8 @@ func (h *notesHandler) InsertBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.InsertBlockRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.NoteId = c.Param("note_id")
@@ -175,7 +175,7 @@ func (h *notesHandler) InsertBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) UpdateBlock(c *gin.Context) {
@@ -186,8 +186,8 @@ func (h *notesHandler) UpdateBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateBlockRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.Id = c.Param("block_id")
@@ -198,7 +198,7 @@ func (h *notesHandler) UpdateBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) DeleteBlock(c *gin.Context) {
@@ -218,5 +218,5 @@ func (h *notesHandler) DeleteBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }

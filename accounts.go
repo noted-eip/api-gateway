@@ -14,8 +14,8 @@ type accountsHandler struct {
 
 func (h *accountsHandler) CreateAccount(c *gin.Context) {
 	body := &accountsv1.CreateAccountRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
@@ -77,8 +77,8 @@ func (h *accountsHandler) UpdateAccount(c *gin.Context) {
 	}
 
 	body := &accountsv1.UpdateAccountRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.Account.Id = c.Param("account_id")
@@ -114,8 +114,8 @@ func (h *accountsHandler) DeleteAccount(c *gin.Context) {
 
 func (h *accountsHandler) Authenticate(c *gin.Context) {
 	body := &accountsv1.AuthenticateRequest{}
-	if err := convertJsonToProto(c, body); err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
