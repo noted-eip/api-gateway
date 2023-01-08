@@ -20,8 +20,8 @@ func (h *groupsHandler) CreateGroup(c *gin.Context) {
 	}
 
 	body := &accountsv1.CreateGroupRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	if err := convertJsonToProto(c, body); err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -82,8 +82,8 @@ func (h *groupsHandler) UpdateGroup(c *gin.Context) {
 	}
 
 	body := &accountsv1.UpdateGroupRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+	if err := convertJsonToProto(c, body); err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -150,8 +150,8 @@ func (h *groupsHandler) UpdateGroupMember(c *gin.Context) {
 	body := &accountsv1.UpdateGroupMemberRequest{
 		Member: &accountsv1.GroupMember{},
 	}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	if err := convertJsonToProto(c, body); err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -218,8 +218,8 @@ func (h *groupsHandler) AddGroupNote(c *gin.Context) {
 	}
 
 	body := &accountsv1.AddGroupNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	if err := convertJsonToProto(c, body); err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -265,8 +265,8 @@ func (h *groupsHandler) UpdateGroupNote(c *gin.Context) {
 	body := &accountsv1.UpdateGroupNoteRequest{
 		Note: &accountsv1.GroupNote{},
 	}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	if err := convertJsonToProto(c, body); err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 

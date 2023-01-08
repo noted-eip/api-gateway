@@ -4,10 +4,7 @@ import (
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
 	"context"
 	"errors"
-	"io/ioutil"
 	"net/http"
-
-	protobuf "google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,15 +21,7 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 	}
 
 	body := &notesv1.CreateNoteRequest{}
-
-	requestBody, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	protobuf.Unmarshal(requestBody, body)
-	if err != nil {
+	if err := convertJsonToProto(c, body); err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
@@ -74,15 +63,7 @@ func (h *notesHandler) UpdateNote(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateNoteRequest{}
-
-	requestBody, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	protobuf.Unmarshal(requestBody, body)
-	if err != nil {
+	if err := convertJsonToProto(c, body); err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
@@ -179,14 +160,7 @@ func (h *notesHandler) InsertBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.InsertBlockRequest{}
-	requestBody, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	protobuf.Unmarshal(requestBody, body)
-	if err != nil {
+	if err := convertJsonToProto(c, body); err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
@@ -209,14 +183,7 @@ func (h *notesHandler) UpdateBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateBlockRequest{}
-	requestBody, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	protobuf.Unmarshal(requestBody, body)
-	if err != nil {
+	if err := convertJsonToProto(c, body); err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}

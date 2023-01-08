@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -10,6 +11,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var (
@@ -77,4 +80,16 @@ func queryAsInt32OrDefault(c *gin.Context, key string, def int32) int32 {
 		return def
 	}
 	return int32(val)
+}
+
+func convertJsonToProto(c *gin.Context, message protoreflect.ProtoMessage) error {
+	requestBody, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		return err
+	}
+	err = protojson.Unmarshal(requestBody, message)
+	if err != nil {
+		return err
+	}
+	return nil
 }

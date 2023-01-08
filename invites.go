@@ -20,8 +20,8 @@ func (h *invitesHandler) SendInvite(c *gin.Context) {
 	}
 
 	body := &accountsv1.SendInviteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+	if err := convertJsonToProto(c, body); err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
