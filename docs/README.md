@@ -749,6 +749,58 @@ This API enforces authorization. For example, you cannot modify a group you're n
 }
 ```
 
+#### Create Note And Add In Group
+
+**Description:** Create a note with or without blocks depeding of you request, and add it to the specify group.
+Must be logged with any role (user or admin).
+
+**Endpoint:** `POST /notes/create/:group_id`
+
+**Tags:** `AuthRequired`
+
+**Body:**
+```json
+{
+    "note": {
+        "author_id": "string",
+        "title": "string",
+        "blocks": [
+            {
+                "type": 1,
+                "heading": "string"
+            },
+            {
+                "type": 4,
+                "paragraph": "string"
+            }
+        ]
+    }
+}
+```
+
+**Response:**
+```json
+{
+    "note": {
+        "id": "string",
+        "author_id": "string",
+        "title": "string",
+        "blocks": [
+            {
+                "id": "string",
+                "type": 1,
+                "heading": "string"
+            },
+            {
+                "id": "string",
+                "type": 4,
+                "paragraph": "string"
+            }
+        ]
+    }
+}
+```
+
 #### Get Note
 
 **Description:** Return a note with blocks and their id, the blocks are sorted by index. it also return the creation and modification date of the note. Must be in the group where the note belongs to, or the owner of the note.
