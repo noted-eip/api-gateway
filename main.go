@@ -34,7 +34,7 @@ func main() {
 	// Accounts
 	s.Engine.POST("/accounts", s.accountsHandler.CreateAccount)
 	s.Engine.GET("/accounts/:account_id", s.accountsHandler.GetAccount)
-	s.Engine.GET("/accounts/:email", s.accountsHandler.GetAccount)
+	s.Engine.GET("/accounts/by-email/:email", s.accountsHandler.GetAccount) // NOTE: Temporary name
 	s.Engine.PATCH("/accounts/:account_id", s.accountsHandler.UpdateAccount)
 	s.Engine.DELETE("/accounts/:account_id", s.accountsHandler.DeleteAccount)
 	s.Engine.GET("/accounts", s.accountsHandler.ListAccounts)
