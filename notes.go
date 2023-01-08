@@ -4,7 +4,10 @@ import (
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
 	"context"
 	"errors"
+	"io/ioutil"
 	"net/http"
+
+	protobuf "google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,12 +23,17 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	//convert les types en uint32?
-	//c quoi le soucis avec les data?
-
 	body := &notesv1.CreateNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
+
+	requestBody, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	protobuf.Unmarshal(requestBody, body)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
