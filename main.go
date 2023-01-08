@@ -68,6 +68,7 @@ func main() {
 
 	// Notes
 	s.Engine.POST("/notes", s.notesHandler.CreateNote)
+	s.Engine.POST("/notes/create/:group_id", s.notesHandler.CreateNoteWithGroup) //temporairement pour finir le sprint
 	s.Engine.GET("/notes/:note_id", s.notesHandler.GetNote)
 	s.Engine.PATCH("/notes/:note_id", s.notesHandler.UpdateNote)
 	s.Engine.DELETE("/notes/:note_id", s.notesHandler.DeleteNote)

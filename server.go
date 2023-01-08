@@ -58,7 +58,8 @@ func (s *server) Init() {
 
 	s.notesClient = notesv1.NewNotesAPIClient(s.notesConn)
 	s.notesHandler = &notesHandler{
-		notesClient: s.notesClient,
+		notesClient:  s.notesClient,
+		groupsClient: s.groupsClient,
 	}
 
 	s.initLogger()
