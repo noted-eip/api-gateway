@@ -125,10 +125,13 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		return
 	}
 
-	formatMap := map[string]notesv1.NoteExportFormat{
-		"":    notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_INVALID,
-		"md":  notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_MARKDOWN,
-		"pdf": notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF,
+	formatMap := map[string]struct {
+		Format      notesv1.NoteExportFormat
+		ContentType string
+	}{
+		"":    {Format: notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_INVALID, ContentType: ""},
+		"md":  {Format: notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_MARKDOWN, ContentType: "text/markdown; charset=UTF-8"},
+		"pdf": {Format: notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF, ContentType: "application/pdf"},
 	}
 
 	format, ok := formatMap[c.Query("format")]
@@ -139,7 +142,7 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 	}
 
 	body := &notesv1.ExportNoteRequest{
-		ExportFormat: notesv1.NoteExportFormat(format),
+		ExportFormat: notesv1.NoteExportFormat(format.Format),
 	}
 	body.NoteId = c.Param("note_id")
 
@@ -149,7 +152,7 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		return
 	}
 
-	c.Data(http.StatusOK, "File", res.File)
+	c.Data(http.StatusOK, format.ContentType, res.File)
 }
 
 func (h *notesHandler) InsertBlock(c *gin.Context) {
