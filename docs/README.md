@@ -36,8 +36,17 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Accept Invite](#accept-invite)
       - [Deny Invite](#deny-invite)
       - [List Invites](#list-invites)
-    - [Recommendations](#recommendations)
-      - [Extract Keywords](#extract-keywords)
+    - [Notes](#notes)
+      - [Create Note](#create-note)
+      - [Get Note](#get-note)
+      - [Update Note](#update-note)
+      - [Delete Note](#delete-note)
+      - [List Notes](#list-notes)
+      - [Export Note](#export-note)
+    - [Blocks](#blocks)
+      - [Insert Block](#insert-block)
+      - [Update Block](#update-block)
+      - [Delete Block](#delete-block)
 
 ## Concepts
 
@@ -581,6 +590,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 **Endpoint:** `POST /invites`
 
+**Tags:** `AuthRequired`
+
 **Body:**
 ```json
 {
@@ -685,22 +696,287 @@ This API enforces authorization. For example, you cannot modify a group you're n
 }
 ```
 
-### Recommendations
+### Notes
 
-#### Extract Keywords
+#### Create Note
 
-**Endpoint:** `POST /recommendations/keywords`
+**Description:** Create a note with or without blocks depeding of you request. Must be logged with any role (user or admin).
+
+**Endpoint:** `POST /notes`
+
+**Tags:** `AuthRequired`
 
 **Body:**
 ```json
 {
-    "content": "string"
+    "note": {
+        "author_id": "string",
+        "title": "string",
+        "blocks": [
+            {
+                "type": 1,
+                "heading": "string"
+            },
+            {
+                "type": 4,
+                "paragraph": "string"
+            }
+        ]
+    }
 }
 ```
 
 **Response:**
 ```json
 {
-    "keywords": ["strings"]
+    "note": {
+        "id": "string",
+        "author_id": "string",
+        "title": "string",
+        "blocks": [
+            {
+                "id": "string",
+                "type": 1,
+                "heading": "string"
+            },
+            {
+                "id": "string",
+                "type": 4,
+                "paragraph": "string"
+            }
+        ]
+    }
+}
+```
+
+#### Get Note
+
+**Description:** Return a note with blocks and their id, the blocks are sorted by index. it also return the creation and modification date of the note. Must be in the group where the note belongs to, or the owner of the note.
+
+**Endpoint:** `GET /notes/:note_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `note_id`: UUID of the note.
+
+**Response:**
+```json
+{
+    "note": {
+        "id": "string",
+        "author_id": "string",
+        "title": "string",
+        "blocks": [
+            {
+                "id": "string",
+                "type": 1,
+                "heading": "string"
+            },
+            {
+                "id": "string",
+                "type": 4,
+                "paragraph": "string"
+            }
+        ],
+        "created_at": {
+            "seconds": "string",
+            "nanos": 600000000
+        },
+        "modified_at": {
+            "seconds": "string",
+            "nanos": 600000000
+        }
+    }
+}
+```
+
+#### Update Note
+
+**Description:** Modify a note with or without blocks depeding of you request. Must be the owner of the note.
+
+**Endpoint:** `PATCH /notes/:note_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `note_id`: UUID of the note.
+
+**Response:**
+```json
+{
+    "id": "string"
+}
+```
+
+#### Delete Note
+
+**Description:** Delete a note with it blocks. Must be the owner of the note.
+
+**Endpoint:** `DEL /notes/:note_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `note_id`: UUID of the note.
+
+**Response:** 
+```json
+{
+
+}
+```
+
+### List Notes
+
+**Description:** List all notes from an author by authorId. The notes are returned without the blocks but with the creation and modification date. Must be the owner or a member of the note's group.
+
+**Endpoint:** `GET /notes/?author_id=`
+
+**Query:**
+- `author_id=<string>`: author of the notes you want to be listed.
+
+**Response:**
+```json
+{
+    "notes": [
+        {
+            "id": "string",
+            "author_id": "string",
+            "title": "string",
+            "created_at": {
+                "seconds": "string",
+                "nanos": 600000000
+            },
+            "modified_at": {
+                "seconds": "string",
+                "nanos": 600000000
+            }
+        },
+        {
+            "id": "string",
+            "author_id": "string",
+            "title": "string",
+            "created_at": {
+                "seconds": "string",
+                "nanos": 600000000
+            },
+            "modified_at": {
+                "seconds": "string",
+                "nanos": 600000000
+            }
+        }
+    ]
+}
+```
+
+#### Export Note
+
+**Description:** Return a dowloable file in pdf or markdown in base64 encoded of the string of bytes corresponding to the array of bytes. Must be the owner or a member of the note's group.
+
+**Endpoint:** `GET /notes/:note_id/export/?format=`
+
+**Path:**
+- `note_id`: UUID of the note.
+
+**Query:**
+- `format=<string>`: format of the note to get ("1" for markdown file or "2" for pdf).
+
+**Response:**
+```json
+{
+    "file": "string"
+}
+```
+
+### Blocks
+
+#### Insert Block
+
+**Description:** Insert a block related to a note by noteId. Must be the owner of the note.
+
+**Endpoint:** `POST /notes/:note_id/blocks`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `note_id`: UUID of the note.
+
+**Body:**
+```json
+{
+    "block": 
+    {
+        "type": 1,
+        "heading": "string"
+    },
+    "index": 1,
+    "note_id": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "block": {
+        "id": "string",
+        "type": "TYPE_HEADING_1",
+        "heading": "string"
+    }
+}
+```
+
+#### Update Block
+
+**Description:** Update a block related to a note by noteId, can also modify the index of the blocks (so the order of blocks in the note). Must be the owner of the note.
+
+**Endpoint:** `PATCH /notes/:note_id/blocks/:block_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `note_id`: UUID of the note.
+- `block_id`: UUID of the block.
+
+**Body:**
+```json
+{
+    "id": "string",
+    "index": 2,
+    "block": 
+    {
+        "type": 4,
+        "paragraph": "string"
+    }
+}
+```
+
+**Response:**
+```json
+{
+    "block": {
+        "id": "string",
+        "type": "TYPE_PARAGRAPH",
+        "paragraph": "string"
+    }
+}
+```
+
+#### Delete Block
+
+**Description:** Delete a block. Must be the owner of the note.
+
+**Endpoint:** `DEL /notes/:note_id/blocks/:block_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `note_id`: UUID of the note.
+- `block_id`: UUID of the block.
+
+**Response:**
+```json
+{
+
 }
 ```

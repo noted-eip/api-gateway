@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	app                           = kingpin.New("api-gateway", "restful json http api for the noted backend").DefaultEnvars()
-	port                          = app.Flag("port", "http api port").Default("3000").Int16()
-	environment                   = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
-	accountsServiceAddress        = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
-	recommendationsServiceAddress = app.Flag("recommendations-service-addr", "the grpc address of the recommendations service").Default("recommendations:3000").String()
+	app                    = kingpin.New("api-gateway", "restful json http api for the noted backend").DefaultEnvars()
+	port                   = app.Flag("port", "http api port").Default("3000").Int16()
+	environment            = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
+	accountsServiceAddress = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
+	notesServiceAddress    = app.Flag("notes-service-addr", "the grpc address of the notes service").Default("notes:3000").String()
 )
 
 const (
@@ -66,8 +66,18 @@ func main() {
 	s.Engine.POST("/invites/:invite_id/deny", s.invitesHandler.DenyInvite)
 	s.Engine.GET("/invites", s.invitesHandler.ListInvites)
 
-	// Recommendations
-	s.Engine.POST("/recommendations/keywords", s.recommendationsHandler.ExtractKeywords)
+	// Notes
+	s.Engine.POST("/notes", s.notesHandler.CreateNote)
+	s.Engine.GET("/notes/:note_id", s.notesHandler.GetNote)
+	s.Engine.PATCH("/notes/:note_id", s.notesHandler.UpdateNote)
+	s.Engine.DELETE("/notes/:note_id", s.notesHandler.DeleteNote)
+	s.Engine.GET("/notes", s.notesHandler.ListNotes)
+	s.Engine.GET("/notes/:note_id/export", s.notesHandler.ExportNote)
+
+	// Blocks
+	s.Engine.POST("/notes/:note_id/blocks", s.notesHandler.InsertBlock)
+	s.Engine.PATCH("/notes/:note_id/blocks/:block_id", s.notesHandler.UpdateBlock)
+	s.Engine.DELETE("/notes/:note_id/blocks/:block_id", s.notesHandler.DeleteBlock)
 
 	s.Run()
 	defer s.Close()
