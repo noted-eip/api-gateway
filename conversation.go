@@ -127,8 +127,8 @@ func (h *conversationsHandler) SendConversationMessage(c *gin.Context) {
 		return
 	}
 
-	body.ConversationId = c.Param("conversation_id")
 	body.Content = c.Param("content")
+	body.ConversationId = c.Param("conversation_id")
 
 	res, err := h.conversationsClient.SendConversationMessage(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
