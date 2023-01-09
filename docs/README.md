@@ -41,7 +41,7 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Get Note](#get-note)
       - [Update Note](#update-note)
       - [Delete Note](#delete-note)
-      - [List Notes](#list-notes)
+    - [List Notes](#list-notes)
       - [Export Note](#export-note)
     - [Blocks](#blocks)
       - [Insert Block](#insert-block)
@@ -136,7 +136,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
     "account": {
         "name": "string",
     },
-    "update_mask": ["name"]
+    "update_mask": "name"
 }
 ```
 
@@ -281,7 +281,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
         "name": "string",
         "description": "string",
     },
-    "update_mask": ["name", "description"]
+    "update_mask": "name,description"
 }
 ```
 
@@ -381,8 +381,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
     "member": {
         "role": "string",
     },
-    "update_mask": ["role"]
-}
+    "update_mask": "role",
 ```
 
 **Response:**
@@ -518,7 +517,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
         "title": "string",
         "folder_id": "string"
     },
-    "update_mask": ["title", "folder_id"]
+    "update_mask": "title,folder_id"
 }
 ```
 
@@ -700,7 +699,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 #### Create Note
 
-**Description:** Create a note with or without blocks depeding of you request. Must be logged with any role (user or admin).
+**Description:** Create a note.
 
 **Endpoint:** `POST /notes`
 
@@ -710,16 +709,10 @@ This API enforces authorization. For example, you cannot modify a group you're n
 ```json
 {
     "note": {
-        "author_id": "string",
         "title": "string",
         "blocks": [
             {
-                "type": 1,
-                "heading": "string"
-            },
-            {
-                "type": 4,
-                "paragraph": "string"
+                "type": "string"
             }
         ]
     }
@@ -736,13 +729,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
         "blocks": [
             {
                 "id": "string",
-                "type": 1,
-                "heading": "string"
-            },
-            {
-                "id": "string",
-                "type": 4,
-                "paragraph": "string"
+                "type": "string"
             }
         ]
     }
@@ -751,7 +738,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 #### Get Note
 
-**Description:** Return a note with blocks and their id, the blocks are sorted by index. it also return the creation and modification date of the note. Must be in the group where the note belongs to, or the owner of the note.
+**Description:** Get a note and its blocks. Must be author or group member.
 
 **Endpoint:** `GET /notes/:note_id`
 
@@ -770,30 +757,18 @@ This API enforces authorization. For example, you cannot modify a group you're n
         "blocks": [
             {
                 "id": "string",
-                "type": 1,
-                "heading": "string"
-            },
-            {
-                "id": "string",
-                "type": 4,
-                "paragraph": "string"
+                "type": "string"
             }
         ],
-        "created_at": {
-            "seconds": "string",
-            "nanos": 600000000
-        },
-        "modified_at": {
-            "seconds": "string",
-            "nanos": 600000000
-        }
+        "created_at": "string",
+        "modified_at": "string"
     }
 }
 ```
 
 #### Update Note
 
-**Description:** Modify a note with or without blocks depeding of you request. Must be the owner of the note.
+**Description:** Must be author.
 
 **Endpoint:** `PATCH /notes/:note_id`
 
@@ -801,6 +776,16 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 **Path:**
 - `note_id`: UUID of the note.
+
+**Body:**
+```json
+{
+    "note": {
+        "title": "string",
+    },
+    "update_mask": "title"
+}
+```
 
 **Response:**
 ```json
@@ -811,9 +796,9 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 #### Delete Note
 
-**Description:** Delete a note with it blocks. Must be the owner of the note.
+**Description:** Delete a note and its blocks. Must be the owner of the note.
 
-**Endpoint:** `DEL /notes/:note_id`
+**Endpoint:** `DELETE /notes/:note_id`
 
 **Tags:** `AuthRequired`
 
@@ -822,19 +807,17 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 **Response:** 
 ```json
-{
-
-}
+{}
 ```
 
 ### List Notes
 
-**Description:** List all notes from an author by authorId. The notes are returned without the blocks but with the creation and modification date. Must be the owner or a member of the note's group.
+**Description:** Must be the author or a group member. Does not return blocks.
 
-**Endpoint:** `GET /notes/?author_id=`
+**Endpoint:** `GET /notes`
 
 **Query:**
-- `author_id=<string>`: author of the notes you want to be listed.
+- `author_id=<string>`: Filter based on note author.
 
 **Response:**
 ```json
@@ -844,27 +827,8 @@ This API enforces authorization. For example, you cannot modify a group you're n
             "id": "string",
             "author_id": "string",
             "title": "string",
-            "created_at": {
-                "seconds": "string",
-                "nanos": 600000000
-            },
-            "modified_at": {
-                "seconds": "string",
-                "nanos": 600000000
-            }
-        },
-        {
-            "id": "string",
-            "author_id": "string",
-            "title": "string",
-            "created_at": {
-                "seconds": "string",
-                "nanos": 600000000
-            },
-            "modified_at": {
-                "seconds": "string",
-                "nanos": 600000000
-            }
+            "created_at": "string",
+            "modified_at": "string"
         }
     ]
 }
@@ -872,28 +836,23 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 #### Export Note
 
-**Description:** Return a dowloable file in pdf or markdown in base64 encoded of the string of bytes corresponding to the array of bytes. Must be the owner or a member of the note's group.
+**Description:** Return a dowloable file in pdf or markdown format. Must be author or group member.
 
-**Endpoint:** `GET /notes/:note_id/export/?format=`
+**Endpoint:** `GET /notes/:note_id/export`
 
 **Path:**
 - `note_id`: UUID of the note.
 
 **Query:**
-- `format=<string>`: format of the note to get ("1" for markdown file or "2" for pdf).
+- `format=<string>`: Format of the file (either "md" or "pdf").
 
-**Response:**
-```json
-{
-    "file": "string"
-}
-```
+**Response:** File Contents
 
 ### Blocks
 
 #### Insert Block
 
-**Description:** Insert a block related to a note by noteId. Must be the owner of the note.
+**Description:** Insert a block at index. Must be the owner of the note.
 
 **Endpoint:** `POST /notes/:note_id/blocks`
 
@@ -905,13 +864,10 @@ This API enforces authorization. For example, you cannot modify a group you're n
 **Body:**
 ```json
 {
-    "block": 
-    {
-        "type": 1,
-        "heading": "string"
+    "block": {
+        "type": "string"
     },
-    "index": 1,
-    "note_id": "string"
+    "index": "number",
 }
 ```
 
@@ -920,15 +876,14 @@ This API enforces authorization. For example, you cannot modify a group you're n
 {
     "block": {
         "id": "string",
-        "type": "TYPE_HEADING_1",
-        "heading": "string"
+        "type": "string"
     }
 }
 ```
 
 #### Update Block
 
-**Description:** Update a block related to a note by noteId, can also modify the index of the blocks (so the order of blocks in the note). Must be the owner of the note.
+**Description:** Modify the contents of a block. Must be the owner of the note.
 
 **Endpoint:** `PATCH /notes/:note_id/blocks/:block_id`
 
@@ -941,12 +896,9 @@ This API enforces authorization. For example, you cannot modify a group you're n
 **Body:**
 ```json
 {
-    "id": "string",
-    "index": 2,
-    "block": 
-    {
-        "type": 4,
-        "paragraph": "string"
+    "index": "number",
+    "block": {
+        "type": "string"
     }
 }
 ```
@@ -956,17 +908,16 @@ This API enforces authorization. For example, you cannot modify a group you're n
 {
     "block": {
         "id": "string",
-        "type": "TYPE_PARAGRAPH",
-        "paragraph": "string"
+        "type": "string"
     }
 }
 ```
 
 #### Delete Block
 
-**Description:** Delete a block. Must be the owner of the note.
+**Description:** Must be the owner of the note.
 
-**Endpoint:** `DEL /notes/:note_id/blocks/:block_id`
+**Endpoint:** `DELETE /notes/:note_id/blocks/:block_id`
 
 **Tags:** `AuthRequired`
 
@@ -976,7 +927,5 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 **Response:**
 ```json
-{
-
-}
+{}
 ```

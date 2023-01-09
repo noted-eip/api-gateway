@@ -20,11 +20,8 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	//convert les types en uint32?
-	//c quoi le soucis avec les data?
-
 	body := &notesv1.CreateNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -35,7 +32,7 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) GetNote(c *gin.Context) {
@@ -55,7 +52,7 @@ func (h *notesHandler) GetNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) UpdateNote(c *gin.Context) {
@@ -66,8 +63,8 @@ func (h *notesHandler) UpdateNote(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.Id = c.Param("note_id")
@@ -78,7 +75,7 @@ func (h *notesHandler) UpdateNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) DeleteNote(c *gin.Context) {
@@ -98,7 +95,7 @@ func (h *notesHandler) DeleteNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) ListNotes(c *gin.Context) {
@@ -118,7 +115,7 @@ func (h *notesHandler) ListNotes(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) ExportNote(c *gin.Context) {
@@ -128,10 +125,13 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		return
 	}
 
-	formatMap := map[string]notesv1.NoteExportFormat{
-		"":    notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_INVALID,
-		"md":  notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_MARKDOWN,
-		"pdf": notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF,
+	formatMap := map[string]struct {
+		Format      notesv1.NoteExportFormat
+		ContentType string
+	}{
+		"":    {Format: notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_INVALID, ContentType: ""},
+		"md":  {Format: notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_MARKDOWN, ContentType: "text/markdown; charset=UTF-8"},
+		"pdf": {Format: notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF, ContentType: "application/pdf"},
 	}
 
 	format, ok := formatMap[c.Query("format")]
@@ -142,7 +142,7 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 	}
 
 	body := &notesv1.ExportNoteRequest{
-		ExportFormat: notesv1.NoteExportFormat(format),
+		ExportFormat: notesv1.NoteExportFormat(format.Format),
 	}
 	body.NoteId = c.Param("note_id")
 
@@ -152,7 +152,7 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		return
 	}
 
-	c.Data(http.StatusOK, "File", res.File)
+	c.Data(http.StatusOK, format.ContentType, res.File)
 }
 
 func (h *notesHandler) InsertBlock(c *gin.Context) {
@@ -163,7 +163,7 @@ func (h *notesHandler) InsertBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.InsertBlockRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -175,7 +175,7 @@ func (h *notesHandler) InsertBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) UpdateBlock(c *gin.Context) {
@@ -186,7 +186,7 @@ func (h *notesHandler) UpdateBlock(c *gin.Context) {
 	}
 
 	body := &notesv1.UpdateBlockRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -198,7 +198,7 @@ func (h *notesHandler) UpdateBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *notesHandler) DeleteBlock(c *gin.Context) {
@@ -218,5 +218,5 @@ func (h *notesHandler) DeleteBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }

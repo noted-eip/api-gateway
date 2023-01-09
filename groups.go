@@ -20,7 +20,7 @@ func (h *groupsHandler) CreateGroup(c *gin.Context) {
 	}
 
 	body := &accountsv1.CreateGroupRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -31,7 +31,7 @@ func (h *groupsHandler) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) GetGroup(c *gin.Context) {
@@ -51,7 +51,7 @@ func (h *groupsHandler) GetGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) DeleteGroup(c *gin.Context) {
@@ -71,7 +71,7 @@ func (h *groupsHandler) DeleteGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) UpdateGroup(c *gin.Context) {
@@ -82,8 +82,8 @@ func (h *groupsHandler) UpdateGroup(c *gin.Context) {
 	}
 
 	body := &accountsv1.UpdateGroupRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (h *groupsHandler) UpdateGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) ListGroups(c *gin.Context) {
@@ -116,7 +116,7 @@ func (h *groupsHandler) ListGroups(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) GetGroupMember(c *gin.Context) {
@@ -137,7 +137,7 @@ func (h *groupsHandler) GetGroupMember(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) UpdateGroupMember(c *gin.Context) {
@@ -150,7 +150,7 @@ func (h *groupsHandler) UpdateGroupMember(c *gin.Context) {
 	body := &accountsv1.UpdateGroupMemberRequest{
 		Member: &accountsv1.GroupMember{},
 	}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -164,7 +164,7 @@ func (h *groupsHandler) UpdateGroupMember(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) RemoveGroupMember(c *gin.Context) {
@@ -185,7 +185,7 @@ func (h *groupsHandler) RemoveGroupMember(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) ListGroupMembers(c *gin.Context) {
@@ -207,7 +207,7 @@ func (h *groupsHandler) ListGroupMembers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) AddGroupNote(c *gin.Context) {
@@ -218,7 +218,7 @@ func (h *groupsHandler) AddGroupNote(c *gin.Context) {
 	}
 
 	body := &accountsv1.AddGroupNoteRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -231,7 +231,7 @@ func (h *groupsHandler) AddGroupNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) GetGroupNote(c *gin.Context) {
@@ -252,7 +252,7 @@ func (h *groupsHandler) GetGroupNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) UpdateGroupNote(c *gin.Context) {
@@ -265,7 +265,7 @@ func (h *groupsHandler) UpdateGroupNote(c *gin.Context) {
 	body := &accountsv1.UpdateGroupNoteRequest{
 		Note: &accountsv1.GroupNote{},
 	}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -279,7 +279,7 @@ func (h *groupsHandler) UpdateGroupNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) RemoveGroupNote(c *gin.Context) {
@@ -300,7 +300,7 @@ func (h *groupsHandler) RemoveGroupNote(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *groupsHandler) ListGroupNotes(c *gin.Context) {
@@ -324,5 +324,5 @@ func (h *groupsHandler) ListGroupNotes(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
