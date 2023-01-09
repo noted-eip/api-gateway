@@ -47,6 +47,16 @@ This document describes all the endpoints of the Noted API gateway and their exp
       - [Insert Block](#insert-block)
       - [Update Block](#update-block)
       - [Delete Block](#delete-block)
+    - [Conversations](#conversations)
+      - [Get Conversation](#get-conversation)
+      - [List Conversation](#list-conversations)
+      - [Update Conversation](#update-conversation)
+    - [Conversation Messages](#conversations)
+      - [Send Conversation Message](#send-conversation-message)
+      - [Delete Conversation Message](#delete-conversation-message)
+      - [Get Conversation Message](#get-conversation-message)
+      - [List Conversation Messages](#list-conversation-messages)
+      - [Update Conversation Message](#update-conversation-message)
 
 ## Concepts
 
@@ -934,7 +944,7 @@ This API enforces authorization. For example, you cannot modify a group you're n
 
 #### Get Conversation
 
-**Description:** must be part of the group
+**Description:** Must be group member.
 
 **Endpoint:** `GET /conversations/:conversation_id`
 
@@ -950,6 +960,193 @@ This API enforces authorization. For example, you cannot modify a group you're n
         "id": "string",
         "group_id": "string",
         "title": "string"
+    }
+}
+```
+
+#### List Conversations
+
+**Description:** Must be group member.
+
+**Endpoint:** `GET /conversations`
+
+**Tags:** `AuthRequired`
+
+**Query:**
+- `group_id=<string>`: UUID of the group in which you want to list the notes.
+
+**Response:**
+```json
+{
+    "conversations": [
+        {
+            "id": "string",
+            "group_id": "string",
+            "title": "string"
+        }
+    ]
+}
+```
+
+#### Update Conversation
+
+**Description:** Must be group admin. Can only update `title`.
+
+**Endpoint:** `PATCH /conversations/:conversation_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation
+
+**Body:**
+```json
+{
+    "conversation": {
+        "title": "string",
+    },
+}
+```
+
+**Response**
+```json
+{
+    "conversation": {
+        "id": "string",
+        "group_id": "string",
+        "title": "string"
+    }
+}
+```
+
+### Conversation Messages
+
+#### Send Conversation Message
+
+**Description:** Must be group member.
+
+**Endpoint:** `POST /conversations/:conversation_id/messages`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation in which you want to send a message
+
+**Reponse:**
+```json
+{
+    "conversation_message": {
+        "id": "string",
+        "conversation_id": "string",
+        "sender_account_id": "string",
+        "content": "string",
+        "created_at": "string"
+    }
+}
+```
+
+#### Delete Conversation Message
+
+**Description:** Must be sender or group admin.
+
+**Endpoint:** `DELETE /conversations/:conversation_id/messages/:message_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation
+- `message_id`: UUID of the message
+
+**Reponse:**
+```json
+{}
+```
+
+#### Get Conversation Message
+
+**Description:** Must be group member.
+
+**Endpoint:** `/conversations/:conversation_id/messages/:message_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation
+- `message_id`: UUID of the message
+
+**Response:**
+```json
+{
+    "conversation_message": {
+        "id": "string",
+        "conversation_id": "string",
+        "sender_account_id": "string",
+        "content": "string",
+        "created_at": "string"
+    }
+}
+```
+
+#### List Conversation Messages
+
+**Description:** Must be group member. Messages are sorted in reverse chronological order.
+
+**Endpoint:** `GET /conversations/:conversation_id/messages`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation
+
+**Query:**
+- `offset=<int32>`: (Optional) Integer cursor.
+- `limit=<int32>`: (Optional) Maximum number of objects returned.
+
+**Response:**
+```json
+{
+    "conversations_message": [
+        {
+            "id": "string",
+            "conversation_id": "string",
+            "sender_account_id": "string",
+            "content": "string",
+            "created_at": "string"
+        }
+    ]
+}
+```
+
+#### Update Conversation Message
+
+**Description:** Must be sender. Can only update `content`.
+
+**Endpoint:** `PATCH /conversations/:conversation_id/messages/:message_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation
+- `message_id`: UUID of the message
+
+**Body:**
+```json
+{
+    "conversation_message": {
+        "content": "string",
+    },
+}
+```
+
+**Response**
+```json
+{
+    "conversation_message": {
+        "id": "string",
+        "conversation_id": "string",
+        "sender_account_id": "string",
+        "content": "string",
+        "created_at": "string"
     }
 }
 ```
