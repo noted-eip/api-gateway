@@ -1,6 +1,7 @@
 package main
 
 import (
+	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
 	"context"
 	"errors"
@@ -10,7 +11,8 @@ import (
 )
 
 type notesHandler struct {
-	notesClient notesv1.NotesAPIClient
+	notesClient  notesv1.NotesAPIClient
+	groupsClient accountsv1.GroupsAPIClient
 }
 
 func (h *notesHandler) CreateNote(c *gin.Context) {
@@ -20,19 +22,31 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	body := &notesv1.CreateNoteRequest{}
-	if err := readRequestBody(c, body); err != nil {
+	createNoteBody := &notesv1.CreateNoteRequest{}
+	if err := readRequestBody(c, createNoteBody); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 
-	res, err := h.notesClient.CreateNote(contextWithGrpcBearer(context.Background(), bearer), body)
+	note, err := h.notesClient.CreateNote(contextWithGrpcBearer(context.Background(), bearer), createNoteBody)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	writeResponse(c, res)
+	addGroupNoteBody := &accountsv1.AddGroupNoteRequest{
+		GroupId: c.Param("group_id"),
+		NoteId:  note.Note.Id,
+		Title:   note.Note.Title,
+	}
+
+	groupNote, err := h.groupsClient.AddGroupNote(contextWithGrpcBearer(context.Background(), bearer), addGroupNoteBody)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	writeResponse(c, groupNote)
 }
 
 func (h *notesHandler) GetNote(c *gin.Context) {

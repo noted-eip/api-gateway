@@ -54,7 +54,6 @@ func main() {
 	s.Engine.GET("/groups/:group_id/members", s.groupsHandler.ListGroupMembers)
 
 	// Group Notes
-	s.Engine.POST("/groups/:group_id/notes", s.groupsHandler.AddGroupNote)
 	s.Engine.GET("/groups/:group_id/notes/:note_id", s.groupsHandler.GetGroupNote)
 	s.Engine.PATCH("/groups/:group_id/notes/:note_id", s.groupsHandler.UpdateGroupNote)
 	s.Engine.DELETE("/groups/:group_id/notes/:note_id", s.groupsHandler.RemoveGroupNote)
@@ -68,6 +67,7 @@ func main() {
 	s.Engine.GET("/invites", s.invitesHandler.ListInvites)
 
 	// Notes
+	s.Engine.POST("/groups/:group_id/notes", s.notesHandler.CreateNote)
 	s.Engine.POST("/notes", s.notesHandler.CreateNote)
 	s.Engine.GET("/notes/:note_id", s.notesHandler.GetNote)
 	s.Engine.PATCH("/notes/:note_id", s.notesHandler.UpdateNote)

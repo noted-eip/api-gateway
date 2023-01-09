@@ -210,30 +210,6 @@ func (h *groupsHandler) ListGroupMembers(c *gin.Context) {
 	writeResponse(c, res)
 }
 
-func (h *groupsHandler) AddGroupNote(c *gin.Context) {
-	bearer, err := authenticate(c)
-	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
-		return
-	}
-
-	body := &accountsv1.AddGroupNoteRequest{}
-	if err := readRequestBody(c, body); err != nil {
-		writeError(c, http.StatusBadRequest, err)
-		return
-	}
-
-	body.GroupId = c.Param("group_id")
-
-	res, err := h.groupsClient.AddGroupNote(contextWithGrpcBearer(context.Background(), bearer), body)
-	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	writeResponse(c, res)
-}
-
 func (h *groupsHandler) GetGroupNote(c *gin.Context) {
 	bearer, err := authenticate(c)
 	if err != nil {
