@@ -80,6 +80,19 @@ func main() {
 	s.Engine.PATCH("/notes/:note_id/blocks/:block_id", s.notesHandler.UpdateBlock)
 	s.Engine.DELETE("/notes/:note_id/blocks/:block_id", s.notesHandler.DeleteBlock)
 
+	// Conversations
+	s.Engine.GET("/conversations/:conversation_id", s.conversationsHandler.GetConversation)
+	s.Engine.PATCH("/conversations/:conversation_id", s.conversationsHandler.UpdateConversation)
+	s.Engine.DELETE("/conversations/:conversation_id", s.conversationsHandler.DeleteConversation)
+	s.Engine.GET("/conversations", s.conversationsHandler.ListConversations)
+
+	// Conversation Messages
+	s.Engine.POST("/conversations/:conversation_id/messages", s.conversationsHandler.SendConversationMessage)
+	s.Engine.DELETE("/conversations/:conversation_id/messages/:message_id", s.conversationsHandler.DeleteConversationMessage)
+	s.Engine.GET("/conversations/:conversation_id/messages", s.conversationsHandler.ListConversationMessages)
+	s.Engine.GET("/conversations/:conversation_id/messages/:message_id", s.conversationsHandler.GetConversationMessage)
+	s.Engine.PATCH("/conversations/:conversation_id/messages/:message_id", s.conversationsHandler.UpdateConversationMessage)
+
 	s.Run()
 	defer s.Close()
 }
