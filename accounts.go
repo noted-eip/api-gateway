@@ -14,7 +14,7 @@ type accountsHandler struct {
 
 func (h *accountsHandler) CreateAccount(c *gin.Context) {
 	body := &accountsv1.CreateAccountRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -36,7 +36,8 @@ func (h *accountsHandler) GetAccount(c *gin.Context) {
 	}
 
 	body := &accountsv1.GetAccountRequest{
-		Id: c.Param("account_id"),
+		Id:    c.Param("account_id"),
+		Email: c.Param("email"),
 	}
 
 	res, err := h.accountsClient.GetAccount(contextWithGrpcBearer(context.Background(), bearer), body)
@@ -77,8 +78,8 @@ func (h *accountsHandler) UpdateAccount(c *gin.Context) {
 	}
 
 	body := &accountsv1.UpdateAccountRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.Account.Id = c.Param("account_id")
@@ -114,7 +115,7 @@ func (h *accountsHandler) DeleteAccount(c *gin.Context) {
 
 func (h *accountsHandler) Authenticate(c *gin.Context) {
 	body := &accountsv1.AuthenticateRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
