@@ -13,20 +13,26 @@ type conversationsHandler struct {
 }
 
 func (h *conversationsHandler) CreateConversation(c *gin.Context) {
+	bearer, err := authenticate(c)
+	if err != nil {
+		writeError(c, http.StatusUnauthorized, err)
+		return
+	}
+
 	body := &accountsv1.CreateConversationRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.GroupId = c.Query("group_id")
 
-	res, err := h.conversationsClient.CreateConversation(context.Background(), body)
+	res, err := h.conversationsClient.CreateConversation(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) GetConversation(c *gin.Context) {
@@ -46,7 +52,7 @@ func (h *conversationsHandler) GetConversation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) ListConversations(c *gin.Context) {
@@ -66,7 +72,7 @@ func (h *conversationsHandler) ListConversations(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) UpdateConversation(c *gin.Context) {
@@ -77,8 +83,8 @@ func (h *conversationsHandler) UpdateConversation(c *gin.Context) {
 	}
 
 	body := &accountsv1.UpdateConversationRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.ConversationId = c.Param("conversation_id")
@@ -89,7 +95,7 @@ func (h *conversationsHandler) UpdateConversation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) DeleteConversation(c *gin.Context) {
@@ -109,7 +115,7 @@ func (h *conversationsHandler) DeleteConversation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) SendConversationMessage(c *gin.Context) {
@@ -120,7 +126,7 @@ func (h *conversationsHandler) SendConversationMessage(c *gin.Context) {
 	}
 
 	body := &accountsv1.SendConversationMessageRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
+	if err := readRequestBody(c, body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
@@ -133,7 +139,7 @@ func (h *conversationsHandler) SendConversationMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) DeleteConversationMessage(c *gin.Context) {
@@ -154,7 +160,7 @@ func (h *conversationsHandler) DeleteConversationMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) ListConversationMessages(c *gin.Context) {
@@ -176,7 +182,7 @@ func (h *conversationsHandler) ListConversationMessages(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) UpdateConversationMessage(c *gin.Context) {
@@ -187,8 +193,8 @@ func (h *conversationsHandler) UpdateConversationMessage(c *gin.Context) {
 	}
 
 	body := &accountsv1.UpdateConversationMessageRequest{}
-	if err := c.ShouldBindJSON(body); err != nil {
-		c.JSON(http.StatusOK, httpError{Error: err.Error()})
+	if err := readRequestBody(c, body); err != nil {
+		writeError(c, http.StatusBadRequest, err)
 		return
 	}
 	body.MessageId = c.Param("message_id")
@@ -200,7 +206,7 @@ func (h *conversationsHandler) UpdateConversationMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
 
 func (h *conversationsHandler) GetConversationMessage(c *gin.Context) {
@@ -221,5 +227,5 @@ func (h *conversationsHandler) GetConversationMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	writeResponse(c, res)
 }
