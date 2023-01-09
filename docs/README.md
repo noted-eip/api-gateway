@@ -929,3 +929,27 @@ This API enforces authorization. For example, you cannot modify a group you're n
 ```json
 {}
 ```
+
+### Conversations
+
+#### Get Conversation
+
+**Description:** must be part of the group
+
+**Endpoint:** `GET /conversations/:conversation_id`
+
+**Tags:** `AuthRequired`
+
+**Path:**
+- `conversation_id`: UUID of the conversation
+
+**Response:**
+```json
+{
+    "conversation": {
+        "id": "string",
+        "group_id": "string",
+        "title": "string"
+    }
+}
+```
