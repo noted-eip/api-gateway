@@ -30,6 +30,9 @@ type server struct {
 	notesClient  notesv1.NotesAPIClient
 	notesHandler *notesHandler
 
+	conversationsClient  accountsv1.ConversationsAPIClient
+	conversationsHandler *conversationsHandler
+
 	logger  *zap.Logger
 	slogger *zap.SugaredLogger
 
@@ -59,6 +62,11 @@ func (s *server) Init() {
 	s.notesClient = notesv1.NewNotesAPIClient(s.notesConn)
 	s.notesHandler = &notesHandler{
 		notesClient: s.notesClient,
+	}
+
+	s.conversationsClient = accountsv1.NewConversationsAPIClient(s.accountsConn)
+	s.conversationsHandler = &conversationsHandler{
+		conversationsClient: s.conversationsClient,
 	}
 
 	s.initLogger()

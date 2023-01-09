@@ -12,14 +12,13 @@ type conversationsHandler struct {
 	conversationsClient accountsv1.ConversationsAPIClient
 }
 
-func (h *conversationsHandler) CreateAccount(c *gin.Context) {
+func (h *conversationsHandler) CreateConversation(c *gin.Context) {
 	body := &accountsv1.CreateConversationRequest{}
 	if err := c.ShouldBindJSON(body); err != nil {
 		writeError(c, http.StatusBadRequest, err)
 		return
 	}
-	body.GroupId = c.Param("group_id")
-	body.Title = c.Param("title")
+	body.GroupId = c.Query("group_id")
 
 	res, err := h.conversationsClient.CreateConversation(context.Background(), body)
 	if err != nil {
@@ -58,7 +57,7 @@ func (h *conversationsHandler) ListConversations(c *gin.Context) {
 	}
 
 	body := &accountsv1.ListConversationsRequest{
-		GroupId: c.Param("group_id"),
+		GroupId: c.Query("group_id"),
 	}
 
 	res, err := h.conversationsClient.ListConversations(contextWithGrpcBearer(context.Background(), bearer), body)
@@ -83,7 +82,6 @@ func (h *conversationsHandler) UpdateConversation(c *gin.Context) {
 		return
 	}
 	body.ConversationId = c.Param("conversation_id")
-	body.Title = c.Param("title")
 
 	res, err := h.conversationsClient.UpdateConversation(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
@@ -127,7 +125,6 @@ func (h *conversationsHandler) SendConversationMessage(c *gin.Context) {
 		return
 	}
 
-	body.Content = c.Param("content")
 	body.ConversationId = c.Param("conversation_id")
 
 	res, err := h.conversationsClient.SendConversationMessage(contextWithGrpcBearer(context.Background(), bearer), body)
@@ -196,7 +193,6 @@ func (h *conversationsHandler) UpdateConversationMessage(c *gin.Context) {
 	}
 	body.MessageId = c.Param("message_id")
 	body.ConversationId = c.Param("conversation_id")
-	body.Content = c.Param("content")
 
 	res, err := h.conversationsClient.UpdateConversationMessage(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
