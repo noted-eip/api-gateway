@@ -40,13 +40,13 @@ func (h *notesHandler) CreateNote(c *gin.Context) {
 		Title:   note.Note.Title,
 	}
 
-	groupNote, err := h.groupsClient.AddGroupNote(contextWithGrpcBearer(context.Background(), bearer), addGroupNoteBody)
+	_, err = h.groupsClient.AddGroupNote(contextWithGrpcBearer(context.Background(), bearer), addGroupNoteBody)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	writeResponse(c, groupNote)
+	writeResponse(c, note)
 }
 
 func (h *notesHandler) GetNote(c *gin.Context) {
