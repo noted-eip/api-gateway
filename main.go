@@ -21,6 +21,7 @@ var (
 	port                   = app.Flag("port", "http api port").Default("3000").Int16()
 	environment            = app.Flag("env", "production or development").Default(envIsProd).Enum(envIsProd, envIsDev)
 	accountsServiceAddress = app.Flag("accounts-service-addr", "the grpc address of the accounts service").Default("accounts:3000").String()
+	notesServiceAddress    = app.Flag("notes-service-addr", "the grpc address of the notes service").Default("notes:3000").String()
 )
 
 const (
@@ -40,7 +41,7 @@ func main() {
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	must(accountsv1.RegisterAccountsAPIHandlerFromEndpoint(ctx, mux, *accountsServiceAddress, opts))
-	must(notesv1.RegisterGroupsAPIHandlerFromEndpoint(ctx, mux, *accountsServiceAddress, opts))
+	must(notesv1.RegisterGroupsAPIHandlerFromEndpoint(ctx, mux, *notesServiceAddress, opts))
 
 	logger.Info("starting api-gateway", zap.Int16("port", *port))
 	must(http.ListenAndServe(fmt.Sprint(":", *port), mux))
