@@ -42,6 +42,7 @@ func main() {
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	must(accountsv1.RegisterAccountsAPIHandlerFromEndpoint(ctx, srv.mux, *accountsServiceAddress, opts))
 	must(notesv1.RegisterGroupsAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
+	must(notesv1.RegisterNotesAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 
 	srv.run()
 }
