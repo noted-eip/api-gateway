@@ -1,9 +1,21 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
+	notesv1 "api-gateway/protorepo/noted/notes/v1"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -22,77 +34,75 @@ const (
 
 func main() {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
+	srv := newServer()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	s := server{}
-	s.Init()
+	// Register gRPC APIs here.
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	must(accountsv1.RegisterAccountsAPIHandlerFromEndpoint(ctx, srv.mux, *accountsServiceAddress, opts))
+	must(notesv1.RegisterGroupsAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
+	must(notesv1.RegisterNotesAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 
-	s.Engine.Use(gin.Recovery())
-	s.Engine.Use(s.LoggerMiddleware)
-	s.Engine.Use(s.AccessControlMiddleware)
-	s.Engine.Use(s.PreflightMiddleware)
+	srv.run()
+}
 
-	// Accounts
-	s.Engine.POST("/accounts", s.accountsHandler.CreateAccount)
-	s.Engine.GET("/accounts/:account_id", s.accountsHandler.GetAccount)
-	s.Engine.GET("/accounts/by-email/:email", s.accountsHandler.GetAccount) // NOTE: Temporary name
-	s.Engine.PATCH("/accounts/:account_id", s.accountsHandler.UpdateAccount)
-	s.Engine.DELETE("/accounts/:account_id", s.accountsHandler.DeleteAccount)
-	s.Engine.GET("/accounts", s.accountsHandler.ListAccounts)
-	s.Engine.POST("/authenticate", s.accountsHandler.Authenticate)
+type server struct {
+	logger *zap.Logger
+	mux    *runtime.ServeMux
+}
 
-	// Groups
-	s.Engine.POST("/groups", s.groupsHandler.CreateGroup)
-	s.Engine.GET("/groups/:group_id", s.groupsHandler.GetGroup)
-	s.Engine.PATCH("/groups/:group_id", s.groupsHandler.UpdateGroup)
-	s.Engine.DELETE("/groups/:group_id", s.groupsHandler.DeleteGroup)
-	s.Engine.GET("/groups", s.groupsHandler.ListGroups)
+func newServer() *server {
+	srv := &server{}
+	srv.initLogger()
+	srv.mux = runtime.NewServeMux(runtime.WithErrorHandler(srv.errorHandler))
+	return srv
+}
 
-	// Group Members
-	s.Engine.GET("/groups/:group_id/members/:member_id", s.groupsHandler.GetGroupMember)
-	s.Engine.PATCH("/groups/:group_id/members/:member_id", s.groupsHandler.UpdateGroupMember)
-	s.Engine.DELETE("/groups/:group_id/members/:member_id", s.groupsHandler.RemoveGroupMember)
-	s.Engine.GET("/groups/:group_id/members", s.groupsHandler.ListGroupMembers)
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
 
-	// Group Notes
-	s.Engine.GET("/groups/:group_id/notes/:note_id", s.groupsHandler.GetGroupNote)
-	s.Engine.PATCH("/groups/:group_id/notes/:note_id", s.groupsHandler.UpdateGroupNote)
-	s.Engine.DELETE("/groups/:group_id/notes/:note_id", s.groupsHandler.RemoveGroupNote)
-	s.Engine.GET("/groups/:group_id/notes", s.groupsHandler.ListGroupNotes)
+func (srv *server) initLogger() {
+	var err error
+	if *environment == envIsDev {
+		srv.logger, err = zap.NewDevelopment()
+		must(err)
+	} else {
+		srv.logger, err = zap.NewProduction()
+		must(err)
+	}
+}
 
-	// Invites
-	s.Engine.POST("/invites", s.invitesHandler.SendInvite)
-	s.Engine.GET("/invites/:invite_id", s.invitesHandler.GetInvite)
-	s.Engine.POST("/invites/:invite_id/accept", s.invitesHandler.AcceptInvite)
-	s.Engine.POST("/invites/:invite_id/deny", s.invitesHandler.DenyInvite)
-	s.Engine.GET("/invites", s.invitesHandler.ListInvites)
+type httpError struct {
+	Error string `json:"error"`
+}
 
-	// Notes
-	s.Engine.POST("/groups/:group_id/notes", s.notesHandler.CreateNote)
-	s.Engine.POST("/notes", s.notesHandler.CreateNote)
-	s.Engine.GET("/notes/:note_id", s.notesHandler.GetNote)
-	s.Engine.PATCH("/notes/:note_id", s.notesHandler.UpdateNote)
-	s.Engine.DELETE("/notes/:note_id", s.notesHandler.DeleteNote)
-	s.Engine.GET("/notes", s.notesHandler.ListNotes)
-	s.Engine.GET("/notes/:note_id/export", s.notesHandler.ExportNote)
+func (srv *server) errorHandler(ctx context.Context, sm *runtime.ServeMux, m runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
+	st, ok := status.FromError(err)
+	if !ok {
+		srv.logger.Error("service replied with non-status error", zap.String("path", r.URL.Path), zap.String("method", r.Method))
+		st = status.New(codes.Internal, "internal server error")
+	}
 
-	// Blocks
-	s.Engine.POST("/notes/:note_id/blocks", s.notesHandler.InsertBlock)
-	s.Engine.PATCH("/notes/:note_id/blocks/:block_id", s.notesHandler.UpdateBlock)
-	s.Engine.DELETE("/notes/:note_id/blocks/:block_id", s.notesHandler.DeleteBlock)
+	w.Header().Set("Content-Type", "application/json")
+	httpStatus := runtime.HTTPStatusFromCode(st.Code())
+	w.WriteHeader(httpStatus)
 
-	// Conversations
-	s.Engine.GET("/conversations/:conversation_id", s.conversationsHandler.GetConversation)
-	s.Engine.PATCH("/conversations/:conversation_id", s.conversationsHandler.UpdateConversation)
-	s.Engine.DELETE("/conversations/:conversation_id", s.conversationsHandler.DeleteConversation)
-	s.Engine.GET("/conversations", s.conversationsHandler.ListConversations)
+	bytes, err := json.Marshal(httpError{Error: st.Message()})
+	if err != nil {
+		srv.logger.Error("failed to marshal error response", zap.Any("status", st), zap.Error(err))
+		return
+	}
 
-	// Conversation Messages
-	s.Engine.POST("/conversations/:conversation_id/messages", s.conversationsHandler.SendConversationMessage)
-	s.Engine.DELETE("/conversations/:conversation_id/messages/:message_id", s.conversationsHandler.DeleteConversationMessage)
-	s.Engine.GET("/conversations/:conversation_id/messages", s.conversationsHandler.ListConversationMessages)
-	s.Engine.GET("/conversations/:conversation_id/messages/:message_id", s.conversationsHandler.GetConversationMessage)
-	s.Engine.PATCH("/conversations/:conversation_id/messages/:message_id", s.conversationsHandler.UpdateConversationMessage)
+	if _, err := w.Write(bytes); err != nil {
+		srv.logger.Error("failed to write error response", zap.Any("status", st), zap.Error(err))
+	}
+}
 
-	s.Run()
-	defer s.Close()
+func (srv *server) run() {
+	srv.logger.Info("starting api-gateway", zap.Int16("port", *port))
+	must(http.ListenAndServe(fmt.Sprint(":", *port), srv.mux))
 }
