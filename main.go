@@ -55,7 +55,10 @@ type server struct {
 func newServer() *server {
 	srv := &server{}
 	srv.initLogger()
-	srv.mux = runtime.NewServeMux(runtime.WithErrorHandler(srv.errorHandler))
+	srv.mux = runtime.NewServeMux(
+		runtime.WithErrorHandler(srv.errorHandler),
+		runtime.WithRoutingErrorHandler(srv.routingErrorHandler),
+	)
 	return srv
 }
 
@@ -102,7 +105,34 @@ func (srv *server) errorHandler(ctx context.Context, sm *runtime.ServeMux, m run
 	}
 }
 
+func (srv *server) routingErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, httpStatus int) {
+	sterr := status.Error(codes.Internal, "unexpected routing error")
+	switch httpStatus {
+	case http.StatusBadRequest:
+		sterr = status.Error(codes.InvalidArgument, "bad request")
+	case http.StatusMethodNotAllowed:
+		sterr = status.Error(codes.Unimplemented, "method not allowed")
+	case http.StatusNotFound:
+		sterr = status.Error(codes.NotFound, "endpoint does not exist")
+	}
+	srv.errorHandler(ctx, mux, marshaler, w, r, sterr)
+}
+
+func (srv *server) handleCors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 func (srv *server) run() {
 	srv.logger.Info("starting api-gateway", zap.Int16("port", *port))
-	must(http.ListenAndServe(fmt.Sprint(":", *port), srv.mux))
+
+	must(http.ListenAndServe(fmt.Sprint(":", *port), srv.handleCors(srv.mux)))
 }
