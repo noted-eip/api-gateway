@@ -10,6 +10,7 @@ import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
 
+	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -44,21 +45,33 @@ func main() {
 	must(notesv1.RegisterGroupsAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 	must(notesv1.RegisterNotesAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 
+	// Register routes
+	srv.Engine.GET("/notes/:note_id/export", srv.notesHandler.ExportNote)
+
 	srv.run()
 }
 
 type server struct {
 	logger *zap.Logger
 	mux    *runtime.ServeMux
+
+	notesConn    *grpc.ClientConn
+	notesClient  notesv1.NotesAPIClient
+	notesHandler *notesHandler
+	Engine       *gin.Engine
 }
 
 func newServer() *server {
 	srv := &server{}
+	srv.initNoteClient()
 	srv.initLogger()
 	srv.mux = runtime.NewServeMux(
 		runtime.WithErrorHandler(srv.errorHandler),
 		runtime.WithRoutingErrorHandler(srv.routingErrorHandler),
 	)
+
+	srv.Engine = gin.New()
+
 	return srv
 }
 
@@ -76,6 +89,22 @@ func (srv *server) initLogger() {
 	} else {
 		srv.logger, err = zap.NewProduction()
 		must(err)
+	}
+}
+
+func (srv *server) initClientConn(address string) *grpc.ClientConn {
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return conn
+}
+
+func (srv *server) initNoteClient() {
+	srv.notesConn = srv.initClientConn(*notesServiceAddress)
+	srv.notesClient = notesv1.NewNotesAPIClient(srv.notesConn)
+	srv.notesHandler = &notesHandler{
+		notesClient: srv.notesClient,
 	}
 }
 
