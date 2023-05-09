@@ -46,7 +46,7 @@ func main() {
 	must(notesv1.RegisterNotesAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 
 	// Register routes
-	srv.Engine.GET("/notes/:note_id/export", srv.notesHandler.ExportNote)
+	srv.Engine.GET("/groups/:group_id/notes/:note_id/export", srv.notesHandler.ExportNote)
 
 	srv.run()
 }
