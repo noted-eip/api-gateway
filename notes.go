@@ -33,10 +33,10 @@ func (h *notesHandler) ExportNote(w http.ResponseWriter, r *http.Request, pathPa
 	}
 
 	body := &notesv1.ExportNoteRequest{
+		NoteId:       pathParams["note_id"],
+		GroupId:      pathParams["group_id"],
 		ExportFormat: notesv1.NoteExportFormat(format),
 	}
-
-	body.NoteId = r.FormValue("note_id")
 
 	res, err := h.notesClient.ExportNote(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
