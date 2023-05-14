@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -49,21 +48,21 @@ func contextWithGrpcBearer(parent context.Context, bearer string) context.Contex
 // writeError writes to the body of an http request the error passed as
 // argument. If the error is a gRPC error, the status code written will
 // depend on the gRPC status code.
-func writeError(c *gin.Context, code int, err error) {
+func writeError(w http.ResponseWriter, code int, err error) {
 	s, ok := status.FromError(err)
 	if ok {
 		translatedCode := grpcCodeToHttpCode[s.Code()]
 		if translatedCode == 0 {
 			translatedCode = http.StatusInternalServerError
 		}
-		c.JSON(translatedCode, httpError{Error: s.Message()})
-		return
+		http.Error(w, s.Message(), translatedCode)
 	}
-	c.JSON(code, httpError{Error: err.Error()})
+	http.Error(w, err.Error(), code)
 }
 
-func authenticate(c *gin.Context) (string, error) {
-	bearer := c.GetHeader(httpAuthorizationHeader)
+func authenticate(r *http.Request) (string, error) {
+	bearer := r.Header.Get(httpAuthorizationHeader)
+
 	if bearer == "" {
 		return "", ErrUnauthenticated
 	}
