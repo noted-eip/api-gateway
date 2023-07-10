@@ -2,10 +2,11 @@ package main
 
 import (
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
+	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 )
 
 type notesHandler struct {
@@ -25,7 +26,9 @@ func (h *notesHandler) ExportNote(w http.ResponseWriter, r *http.Request, pathPa
 		"pdf": notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF,
 	}
 
-	format, ok := formatMap[r.URL.Query().Get("format")]
+	fileType := r.URL.Query().Get("format")
+
+	format, ok := formatMap[fileType]
 	if !ok {
 		err := errors.New("unknow export format")
 		writeError(w, http.StatusBadRequest, err)
@@ -44,12 +47,7 @@ func (h *notesHandler) ExportNote(w http.ResponseWriter, r *http.Request, pathPa
 		return
 	}
 
-	resp := make(map[string]string)
-	resp["File"] = string(res.File)
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err)
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResp)
+	fileName := "note." + fileType
+	w.Header().Set("Content-Disposition", "attachment;filename="+fileName) // Headers that tells the browser to download the served file with the name note.pdf
+	http.ServeContent(w, r, fileName, time.Now(), bytes.NewReader(res.File))
 }
