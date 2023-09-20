@@ -2,21 +2,21 @@ package main
 
 import (
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
+	"bytes"
 	"context"
 	"errors"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type notesHandler struct {
 	notesClient notesv1.NotesAPIClient
 }
 
-func (h *notesHandler) ExportNote(c *gin.Context) {
-	bearer, err := authenticate(c)
+func (h *notesHandler) ExportNote(w http.ResponseWriter, r *http.Request, pathParams map[string]string) /*(code int, contentType string, data []byte)*/ {
+	bearer, err := authenticate(r)
 	if err != nil {
-		writeError(c, http.StatusUnauthorized, err)
+		writeError(w, http.StatusUnauthorized, err)
 		return
 	}
 
@@ -26,23 +26,28 @@ func (h *notesHandler) ExportNote(c *gin.Context) {
 		"pdf": notesv1.NoteExportFormat_NOTE_EXPORT_FORMAT_PDF,
 	}
 
-	format, ok := formatMap[c.Query("format")]
+	fileType := r.URL.Query().Get("format")
+
+	format, ok := formatMap[fileType]
 	if !ok {
 		err := errors.New("unknow export format")
-		writeError(c, http.StatusBadRequest, err)
+		writeError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	body := &notesv1.ExportNoteRequest{
+		NoteId:       pathParams["note_id"],
+		GroupId:      pathParams["group_id"],
 		ExportFormat: notesv1.NoteExportFormat(format),
 	}
-	body.NoteId = c.Param("note_id")
 
 	res, err := h.notesClient.ExportNote(contextWithGrpcBearer(context.Background(), bearer), body)
 	if err != nil {
-		writeError(c, http.StatusInternalServerError, err)
+		writeError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	c.Data(http.StatusOK, "File", res.File)
+	fileName := "note." + fileType
+	w.Header().Set("Content-Disposition", "attachment;filename="+fileName) // Headers that tells the browser to download the served file with the name note.pdf
+	http.ServeContent(w, r, fileName, time.Now(), bytes.NewReader(res.File))
 }

@@ -10,7 +10,6 @@ import (
 	accountsv1 "api-gateway/protorepo/noted/accounts/v1"
 	notesv1 "api-gateway/protorepo/noted/notes/v1"
 
-	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -44,9 +43,10 @@ func main() {
 	must(accountsv1.RegisterAccountsAPIHandlerFromEndpoint(ctx, srv.mux, *accountsServiceAddress, opts))
 	must(notesv1.RegisterGroupsAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 	must(notesv1.RegisterNotesAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
+	must(notesv1.RegisterRecommendationsAPIHandlerFromEndpoint(ctx, srv.mux, *notesServiceAddress, opts))
 
-	// Register routes
-	srv.Engine.GET("/notes/:note_id/export", srv.notesHandler.ExportNote)
+	// Register specific endpoint here.
+	srv.mux.HandlePath("GET", "/groups/{group_id}/notes/{note_id}/export", srv.notesHandler.ExportNote)
 
 	srv.run()
 }
@@ -58,7 +58,6 @@ type server struct {
 	notesConn    *grpc.ClientConn
 	notesClient  notesv1.NotesAPIClient
 	notesHandler *notesHandler
-	Engine       *gin.Engine
 }
 
 func newServer() *server {
@@ -69,9 +68,6 @@ func newServer() *server {
 		runtime.WithErrorHandler(srv.errorHandler),
 		runtime.WithRoutingErrorHandler(srv.routingErrorHandler),
 	)
-
-	srv.Engine = gin.New()
-
 	return srv
 }
 
