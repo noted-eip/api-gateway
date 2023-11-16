@@ -102,6 +102,7 @@ func (srv *server) initNoteClient() {
 	srv.notesClient = notesv1.NewNotesAPIClient(srv.notesConn)
 	srv.notesHandler = &notesHandler{
 		notesClient: srv.notesClient,
+		logger:      srv.logger,
 	}
 }
 

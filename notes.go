@@ -8,10 +8,13 @@ import (
 	"errors"
 	"net/http"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type notesHandler struct {
 	notesClient notesv1.NotesAPIClient
+	logger      *zap.Logger
 }
 
 func (h *notesHandler) CreateNote(w http.ResponseWriter, r *http.Request, pathParams map[string]string) /*(code int, contentType string, data []byte)*/ {
@@ -60,7 +63,13 @@ func (h *notesHandler) CreateNote(w http.ResponseWriter, r *http.Request, pathPa
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(resBytes)
+	_, err = w.Write(resBytes)
+
+	if err != nil {
+		h.logger.Error("Failed to create note : ", zap.Error(err))
+	} else {
+		h.logger.Info("Created note successfully")
+	}
 }
 
 func (h *notesHandler) ExportNote(w http.ResponseWriter, r *http.Request, pathParams map[string]string) /*(code int, contentType string, data []byte)*/ {
