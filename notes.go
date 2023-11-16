@@ -42,9 +42,7 @@ func (h *notesHandler) CreateNote(w http.ResponseWriter, r *http.Request, pathPa
 	// Fetch language to complete Create Note request
 	lang := r.URL.Query().Get("lang")
 	if lang == "" {
-		err := errors.New("expect note's language")
-		writeError(w, http.StatusBadRequest, err)
-		return
+		lang = "fr"
 	}
 	body.Lang = lang
 
