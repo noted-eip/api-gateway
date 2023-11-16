@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"time"
 )
@@ -60,7 +61,8 @@ func (h *notesHandler) CreateNote(w http.ResponseWriter, r *http.Request, pathPa
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(resBytes)
+
+	io.Copy(w, bytes.NewReader(resBytes))
 }
 
 func (h *notesHandler) ExportNote(w http.ResponseWriter, r *http.Request, pathParams map[string]string) /*(code int, contentType string, data []byte)*/ {
