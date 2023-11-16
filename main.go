@@ -63,8 +63,8 @@ type server struct {
 
 func newServer() *server {
 	srv := &server{}
-	srv.initNoteClient()
 	srv.initLogger()
+	srv.initNoteClient()
 	srv.mux = runtime.NewServeMux(
 		runtime.WithErrorHandler(srv.errorHandler),
 		runtime.WithRoutingErrorHandler(srv.routingErrorHandler),
