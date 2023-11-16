@@ -47,6 +47,7 @@ func main() {
 
 	// Register specific endpoint here.
 	srv.mux.HandlePath("GET", "/groups/{group_id}/notes/{note_id}/export", srv.notesHandler.ExportNote)
+	srv.mux.HandlePath("POST", "/groups/{group_id}/notes", srv.notesHandler.CreateNote)
 
 	srv.run()
 }

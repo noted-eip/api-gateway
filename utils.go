@@ -56,8 +56,9 @@ func writeError(w http.ResponseWriter, code int, err error) {
 			translatedCode = http.StatusInternalServerError
 		}
 		http.Error(w, s.Message(), translatedCode)
+	} else {
+		http.Error(w, err.Error(), code)
 	}
-	http.Error(w, err.Error(), code)
 }
 
 func authenticate(r *http.Request) (string, error) {
