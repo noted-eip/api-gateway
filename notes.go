@@ -9,10 +9,13 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type notesHandler struct {
 	notesClient notesv1.NotesAPIClient
+	logger      *zap.Logger
 }
 
 func (h *notesHandler) CreateNote(w http.ResponseWriter, r *http.Request, pathParams map[string]string) /*(code int, contentType string, data []byte)*/ {
