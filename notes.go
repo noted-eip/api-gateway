@@ -23,6 +23,11 @@ func (h *notesHandler) CreateNote(w http.ResponseWriter, r *http.Request, pathPa
 
 	// Read body and interpret it in a Create Note request struct
 	var body notesv1.CreateNoteRequest
+	if err := convertJsonToProto(r.Body, &body); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	err = json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		err := errors.New("wrong body: " + err.Error())

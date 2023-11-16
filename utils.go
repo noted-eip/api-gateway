@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var (
@@ -68,4 +71,16 @@ func authenticate(r *http.Request) (string, error) {
 		return "", ErrUnauthenticated
 	}
 	return bearer, nil
+}
+
+func convertJsonToProto(body io.ReadCloser, message protoreflect.ProtoMessage) error {
+	requestBody, err := io.ReadAll(body)
+	if err != nil {
+		return err
+	}
+	err = protojson.Unmarshal(requestBody, message)
+	if err != nil {
+		return err
+	}
+	return nil
 }
