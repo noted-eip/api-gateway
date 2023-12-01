@@ -47,6 +47,7 @@ func main() {
 
 	// Register specific endpoint here.
 	srv.mux.HandlePath("GET", "/groups/{group_id}/notes/{note_id}/export", srv.notesHandler.ExportNote)
+	// srv.mux.HandlePath("POST", "/groups/{group_id}/notes", srv.notesHandler.CreateNote)
 
 	srv.run()
 }
@@ -62,8 +63,8 @@ type server struct {
 
 func newServer() *server {
 	srv := &server{}
-	srv.initNoteClient()
 	srv.initLogger()
+	srv.initNoteClient()
 	srv.mux = runtime.NewServeMux(
 		runtime.WithErrorHandler(srv.errorHandler),
 		runtime.WithRoutingErrorHandler(srv.routingErrorHandler),
@@ -101,6 +102,7 @@ func (srv *server) initNoteClient() {
 	srv.notesClient = notesv1.NewNotesAPIClient(srv.notesConn)
 	srv.notesHandler = &notesHandler{
 		notesClient: srv.notesClient,
+		logger:      srv.logger,
 	}
 }
 
